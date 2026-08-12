@@ -1,0 +1,201 @@
+:root {
+  /* Airbag Studio design tokens (extracted from the live site) */
+  --purple: #b91b4c;
+  --purple-dark: #841a3b;
+  --beige: #eeece7;
+  --black: #0c0a0b;
+  --white: #ffffff;
+  --orange: #ff6620;
+  --orange-dark: #cc4f00;
+
+  --radius: 5rem;
+  --face-h: clamp(420px, 68vh, 620px);
+
+  --font-display: var(--font-space-grotesk), "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--beige);
+  color: var(--black);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+/* ---------- page scaffolding ---------- */
+.page {
+  position: relative;
+}
+
+.spacer {
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 6vw;
+}
+
+.spacer__hint {
+  font-size: clamp(18px, 2.4vw, 30px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.55;
+  max-width: 22ch;
+}
+
+/* ---------- cuboid section ---------- */
+.cuboid-section {
+  position: relative;
+}
+
+/* pinned viewport */
+.cuboid-viewport {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1500px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+  transition: background-color 0.6s ease;
+}
+
+/* rotating 3D stage */
+.cuboid-stage {
+  position: relative;
+  width: min(1160px, 90vw);
+  height: var(--face-h);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* one face — pre-JS default matches p=0: first face front, the rest hidden below */
+.cuboid-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  border-radius: clamp(1.5rem, 3.4vw, 3rem);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+  transform: rotateX(90deg);
+  transform-origin: 50% 100%;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+}
+.cuboid-face:first-child {
+  transform: rotateX(0deg);
+  transform-origin: 50% 0%;
+}
+
+.cuboid-face__inner {
+  position: relative;
+  width: 100%;
+  padding: clamp(28px, 5vw, 72px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: clamp(20px, 4vw, 56px);
+  will-change: transform, opacity;
+}
+
+.cuboid-face__index {
+  font-size: clamp(13px, 1.2vw, 16px);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: clamp(14px, 2vw, 26px);
+}
+
+.cuboid-face__title {
+  font-size: clamp(34px, 5.2vw, 74px);
+  line-height: 1.02;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.cuboid-face__body {
+  margin-top: clamp(16px, 2.2vw, 28px);
+  font-size: clamp(16px, 1.6vw, 22px);
+  line-height: 1.4;
+  font-weight: 400;
+  max-width: 34ch;
+  opacity: 0.92;
+}
+
+/* decorative diamond mark (echoes the original SVG line-art) */
+.cuboid-face__mark {
+  width: clamp(90px, 13vw, 190px);
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* ---------- progress dots ---------- */
+.cuboid-progress {
+  position: absolute;
+  right: clamp(18px, 4vw, 56px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 5;
+}
+
+.cuboid-progress__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.28;
+  transform: scale(1);
+  transition: transform 0.35s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.35s;
+}
+
+.cuboid-progress__dot.is-active {
+  opacity: 1;
+  transform: scale(1.5);
+}
+
+/* ---------- mobile / touch fallback (stacked) ---------- */
+.cuboid-stack {
+  display: none;
+}
+
+@media (max-width: 1023px), (hover: none), (pointer: coarse) {
+  .cuboid-viewport {
+    display: none;
+  }
+  .cuboid-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 12vh 5vw;
+  }
+  .cuboid-stack .cuboid-face {
+    position: relative;
+    inset: auto;
+    height: auto;
+    min-height: 320px;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+  }
+  .cuboid-progress {
+    display: none;
+  }
+}

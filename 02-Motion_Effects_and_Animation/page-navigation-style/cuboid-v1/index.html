@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airbag Studio — Cuboid rotation (v1)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Airbag Studio design tokens (extracted from the live site) */
+      --purple: #b91b4c;
+      --purple-dark: #841a3b;
+      --beige: #eeece7;
+      --black: #0c0a0b;
+      --white: #ffffff;
+      --orange: #ff6620;
+      --orange-dark: #cc4f00;
+
+      --radius: 5rem;
+      --face-h: clamp(420px, 68vh, 620px);
+
+      --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--beige);
+      color: var(--black);
+      font-family: var(--font-display);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    .page { position: relative; }
+
+    .spacer {
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 6vw;
+    }
+    .spacer__hint {
+      font-size: clamp(18px, 2.4vw, 30px);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      opacity: 0.55;
+      max-width: 28ch;
+    }
+    .spacer__tag {
+      display: inline-block;
+      margin-bottom: 14px;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--purple);
+      font-weight: 700;
+    }
+
+    /* ---------- cuboid section ---------- */
+    .cuboid-section { position: relative; }
+
+    /* pinned viewport */
+    .cuboid-viewport {
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1500px;
+      perspective-origin: 50% 50%;
+      overflow: hidden;
+      transition: background-color 0.6s ease;
+    }
+
+    /* rotating 3D stage */
+    .cuboid-stage {
+      position: relative;
+      width: min(1160px, 90vw);
+      height: var(--face-h);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    /* one face of the cuboid (transform set by JS) */
+    .cuboid-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      border-radius: clamp(1.5rem, 3.4vw, 3rem);
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+    }
+
+    .cuboid-face__inner {
+      position: relative;
+      width: 100%;
+      padding: clamp(28px, 5vw, 72px);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: clamp(20px, 4vw, 56px);
+      will-change: transform, opacity;
+    }
+
+    .cuboid-face__index {
+      font-size: clamp(13px, 1.2vw, 16px);
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: clamp(14px, 2vw, 26px);
+    }
+
+    .cuboid-face__title {
+      font-size: clamp(34px, 5.2vw, 74px);
+      line-height: 1.02;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    .cuboid-face__body {
+      margin-top: clamp(16px, 2.2vw, 28px);
+      font-size: clamp(16px, 1.6vw, 22px);
+      line-height: 1.4;
+      font-weight: 400;
+      max-width: 34ch;
+      opacity: 0.92;
+    }
+
+    .cuboid-face__mark {
+      width: clamp(90px, 13vw, 190px);
+      height: auto;
+      flex-shrink: 0;
+    }
+
+    /* ---------- progress dots ---------- */
+    .cuboid-progress {
+      position: absolute;
+      right: clamp(18px, 4vw, 56px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 5;
+    }
+    .cuboid-progress__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0.28;
+      transform: scale(1);
+      transition: transform 0.35s cubic-bezier(0.215, 0.61, 0.355, 1), opacity 0.35s;
+    }
+    .cuboid-progress__dot.is-active {
+      opacity: 1;
+      transform: scale(1.5);
+    }
+
+    /* ---------- mobile / touch fallback (stacked) ---------- */
+    .cuboid-stack { display: none; }
+
+    @media (max-width: 1023px), (hover: none), (pointer: coarse) {
+      .cuboid-viewport { display: none; }
+      .cuboid-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding: 12vh 5vw;
+      }
+      .cuboid-stack .cuboid-face {
+        position: relative;
+        inset: auto;
+        height: auto;
+        min-height: 320px;
+        backface-visibility: visible;
+        -webkit-backface-visibility: visible;
+      }
+      .cuboid-progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="spacer">
+      <div>
+        <span class="spacer__tag">Version 1 · Cuboid</span>
+        <p class="spacer__hint">
+          Scroll — four boxes rotate together like the faces of a cuboid.
+        </p>
+      </div>
+    </section>
+
+    <section class="cuboid-section">
+      <!-- desktop: pinned 3D cuboid -->
+      <div class="cuboid-viewport" id="viewport">
+        <div class="cuboid-stage" id="stage">
+          <!-- faces injected by script -->
+        </div>
+
+        <div class="cuboid-progress" id="progress" aria-hidden="true"></div>
+      </div>
+
+      <!-- mobile / touch: stacked static cards -->
+      <div class="cuboid-stack" id="stack"></div>
+    </section>
+
+    <section class="spacer">
+      <p class="spacer__hint">End of the sequence. Scroll back up to replay.</p>
+    </section>
+  </main>
+
+  <script src="./gsap.min.js"></script>
+  <script src="./ScrollTrigger.min.js"></script>
+  <script>
+    const FACES = [
+      {
+        index: "01",
+        title: "We don't worry about change",
+        body: "We are the ideal partner for creating unique digital solutions, together.",
+        bg: "#b91b4c",
+        text: "#ffffff",
+        accent: "#841a3b",
+      },
+      {
+        index: "02",
+        title: "Our route into the future",
+        body: "We shape new products by combining design, technology and creativity.",
+        bg: "#eeece7",
+        text: "#0c0a0b",
+        accent: "#b91b4c",
+      },
+      {
+        index: "03",
+        title: "Design meets technology",
+        body: "Useful, simple, ergonomic interfaces built around real user needs.",
+        bg: "#0c0a0b",
+        text: "#ffffff",
+        accent: "#ff6620",
+      },
+      {
+        index: "04",
+        title: "Built to move forward",
+        body: "We prototype fast, iterate with data and ship products that scale.",
+        bg: "#ff6620",
+        text: "#ffffff",
+        accent: "#841a3b",
+      },
+    ];
+
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+
+    // ---- build DOM (same markup for desktop + mobile) ----
+    const MARK_SVG = `
+      <svg class="cuboid-face__mark" viewBox="0 0 321 358" fill="none" aria-hidden="true">
+        <path d="M3.53043 91.658L198.442 3.30924L317.979 267.027L307.921 309.431L122.566 354.269L3.53043 91.658Z" stroke="COLOR" stroke-width="5"/>
+        <path d="M197 3L46 107L1 91.5" stroke="COLOR" stroke-width="5"/>
+      </svg>`;
+
+    function faceHTML(f) {
+      return `
+        <div class="cuboid-face" style="background-color:${f.bg};color:${f.text}">
+          <div class="cuboid-face__inner">
+            <div>
+              <p class="cuboid-face__index">${f.index} — Mission</p>
+              <h2 class="cuboid-face__title" style="color:${f.accent}">${f.title}</h2>
+              <p class="cuboid-face__body">${f.body}</p>
+            </div>
+            ${MARK_SVG.replace(/COLOR/g, f.accent)}
+          </div>
+        </div>`;
+    }
+
+    const stage = document.getElementById("stage");
+    const stack = document.getElementById("stack");
+    const progress = document.getElementById("progress");
+    const viewport = document.getElementById("viewport");
+
+    stage.innerHTML = FACES.map(faceHTML).join("");
+    stack.innerHTML = FACES.map(faceHTML).join("");
+    progress.innerHTML = FACES.map(
+      (f, i) => `<span class="cuboid-progress__dot${i === 0 ? " is-active" : ""}"></span>`
+    ).join("");
+
+    const faces = Array.from(stage.querySelectorAll(".cuboid-face"));
+    const inners = Array.from(stage.querySelectorAll(".cuboid-face__inner"));
+    const dots = Array.from(progress.querySelectorAll(".cuboid-progress__dot"));
+    const count = FACES.length;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const mm = gsap.matchMedia();
+
+    mm.add(
+      {
+        isDesktop: "(min-width: 1024px)",
+        isTouch: "(hover: none), (pointer: coarse)",
+      },
+      (context) => {
+        const { isTouch } = context.conditions;
+        // Like the original: the whole 3D sequence is desktop-only.
+        if (isTouch) return;
+
+        // --- geometry: a cuboid whose side faces are `h` tall -> radius = h / 2
+        let radius = stage.offsetHeight / 2;
+
+        const layout = () => {
+          radius = stage.offsetHeight / 2;
+          faces.forEach((face, i) => {
+            face.style.transform = `rotateX(${-i * 90}deg) translateZ(${radius}px)`;
+          });
+        };
+        layout();
+
+        // drive the per-face content polish + theme from the rotation angle
+        const applyProgress = (rotX) => {
+          const step = 90;
+          const active = Math.max(0, Math.min(count - 1, Math.round(rotX / step)));
+
+          faces.forEach((_, i) => {
+            const frontAngle = i * step;
+            let diff = Math.abs(rotX - frontAngle) % 360;
+            if (diff > 180) diff = 360 - diff;
+            const vis = clamp01(1 - diff / step); // 1 at front, 0 at adjacent face
+
+            const inner = inners[i];
+            if (inner) {
+              const eased = vis * vis * (3 - 2 * vis); // smoothstep
+              inner.style.opacity = (0.15 + 0.85 * eased).toFixed(3);
+              inner.style.transform = `translateY(${((1 - eased) * 46).toFixed(
+                2
+              )}px) scale(${(0.94 + 0.06 * eased).toFixed(3)})`;
+            }
+          });
+
+          const f = FACES[active];
+          viewport.style.backgroundColor = f.accent;
+          dots.forEach((d, i) => d.classList.toggle("is-active", i === active));
+          viewport.style.color =
+            f.bg === "#eeece7" || f.bg === "#ff6620" ? "#0c0a0b" : "#ffffff";
+        };
+
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            trigger: ".cuboid-section",
+            start: "top top",
+            end: `+=${(count - 1) * 100}%`,
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            snap: {
+              snapTo: 1 / (count - 1),
+              duration: { min: 0.15, max: 0.4 },
+              ease: "power2.inOut",
+            },
+            invalidateOnRefresh: true,
+            onUpdate: () => {
+              const rot = gsap.getProperty(stage, "rotationX");
+              applyProgress(rot);
+            },
+          },
+        });
+
+        tl.to(stage, {
+          rotationX: (count - 1) * 90,
+          transformOrigin: "50% 50%",
+          duration: 1,
+        });
+
+        const onResize = () => {
+          layout();
+          ScrollTrigger.refresh();
+        };
+        window.addEventListener("resize", onResize);
+
+        applyProgress(0);
+
+        return () => {
+          window.removeEventListener("resize", onResize);
+        };
+      }
+    );
+  </script>
+</body>
+</html>

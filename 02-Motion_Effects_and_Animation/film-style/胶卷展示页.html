@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>胶卷展示 · 客户怎么说</title>
+<style>
+  /* ============================================================
+     胶卷展示页 —— 弯曲 3D 胶卷 + 右向左循环滑动
+     配色:背景深空灰 #0b0e14 / 胶卷哑光黑 / 卡片白 / 强调金 #c9b28b
+     ============================================================ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0e14;
+    --gold: #c9b28b;
+    --gold-light: #e6b87e;
+    --card-white: #ffffff;
+    --text-main: #1a202c;
+    --text-sub: #6b7a8f;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, #161b26 0%, var(--bg) 60%),
+      var(--bg);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
+    color: #e8eaf0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- 顶部标题区 ---------- */
+  header {
+    text-align: center;
+    padding: 5vh 20px 0;
+    z-index: 10;
+    position: relative;
+  }
+  header .kicker {
+    font-size: 12px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(120deg, #f5f0e6 30%, var(--gold) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #8a93a6;
+    letter-spacing: 1px;
+  }
+
+  /* ---------- 胶卷 3D 舞台 ---------- */
+  .stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    perspective: 1400px;          /* 3D 透视 */
+    perspective-origin: 50% 45%;
+    overflow: hidden;
+    cursor: grab;
+  }
+  /* 舞台两侧渐隐遮罩,让胶卷"驶入驶出"更自然 */
+  .stage::before, .stage::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 12vw;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .stage::before { left: 0;  background: linear-gradient(90deg, var(--bg) 10%, transparent); }
+  .stage::after  { right: 0; background: linear-gradient(-90deg, var(--bg) 10%, transparent); }
+
+  /* ---------- 单个胶卷帧 ---------- */
+  .frame {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+    background: linear-gradient(180deg, #171a20 0%, #0d0f13 50%, #14171d 100%);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* 上下齿孔条 */
+  .edge {
+    height: 34px;
+    flex: none;
+    position: relative;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='34'><rect x='13' y='7' width='20' height='20' rx='5' fill='%23e9e9ec'/></svg>");
+    background-repeat: repeat-x;
+    background-size: 46px 34px;
+    background-position: 0 center;
+  }
+  .edge span {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    opacity: 0.85;
+    white-space: nowrap;
+    font-family: "Inter", -apple-system, sans-serif;
+  }
+  .edge-top span    { right: 12px; }
+  .edge-bottom span { left: 12px; }
+
+  /* 帧内白色卡片槽(空白区,可放图片/组件) */
+  .slot {
+    flex: 1;
+    margin: 4px 8px 6px;
+    background: var(--card-white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .slot svg { width: 100%; height: 100%; display: block; }
+
+  /* ---------- 客户评价卡(复刻真实项目"客户怎么说"模块) ----------
+     规格统一:白卡 / 浅色引号 / 深色正文(最多3行) / 灰色署名 */
+  .review-card {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    padding: 20px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  .review-card .quote {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #c3cedd;              /* 与真实项目一致的浅蓝灰引号 */
+    margin-bottom: 10px;
+  }
+  .review-card .text {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #2b3340;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;       /* 统一:最多 3 行,超出截断 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .review-card .author {
+    margin-top: auto;            /* 署名统一沉底 */
+    padding-top: 12px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #9aa5b5;
+  }
+  .review-card .author::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: #c9b28b;         /* 金色短线,呼应胶卷主题 */
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  /* 装饰帧(无白卡,胶卷本色 + 帧号) */
+  .deco-body {
+    flex: 1;
+    margin: 4px 8px 6px;
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(201,178,139,0.12), transparent 70%),
+      #101318;
+    border: 1px solid rgba(201,178,139,0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .deco-body .num {
+    font-size: 44px;
+    font-weight: 800;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(201,178,139,0.55);
+    font-family: "Inter", sans-serif;
+  }
+  .deco-body .cap {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(201,178,139,0.6);
+  }
+
+  /* ---------- 底部提示 ---------- */
+  footer {
+    text-align: center;
+    padding: 0 20px 4vh;
+    font-size: 12px;
+    color: #5b6478;
+    letter-spacing: 1px;
+    z-index: 10;
+    position: relative;
+  }
+  footer em { color: var(--gold); font-style: normal; }
+
+  @media (max-width: 640px) {
+    .edge { height: 26px; background-size: 36px 26px; }
+    .edge span { font-size: 8px; }
+    .deco-body .num { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Film Strip · Testimonials</div>
+  <h1>客户怎么说</h1>
+  <p>胶卷循环放映中 —— 每一帧,都是一次真实的回响</p>
+</header>
+
+<!-- 胶卷舞台:JS 动态生成帧 -->
+<div class="stage" id="stage"></div>
+
+<footer>悬停胶卷可 <em>暂停滑动</em> · 白色空白帧可替换为 <em>图片 / 组件卡片</em></footer>
+
+<script>
+(function () {
+  /* ============================================================
+     一、帧配置 —— 想改内容只动这里
+     type:
+       'review'    客户评价卡(SVG 占位,正式版替换为真实项目中的评价卡片)
+       'blank'     空白图片位(可放任意 <img> 或 HTML 组件)
+       'component' 组件卡占位(数据看板/产品图等)
+       'deco'      装饰帧(帧号,保持胶卷节奏)
+     wide: true 表示宽幅帧(约 1.8x),用于主展示
+     ============================================================ */
+  const FRAME_DEFS = [
+    { type: 'deco'      },
+    { type: 'review'    },
+    { type: 'blank'     },
+    { type: 'deco'      },
+    { type: 'review'    },
+    { type: 'component', wide: true },   // 中央宽幅组件位
+    { type: 'review'    },
+    { type: 'deco'      },
+    { type: 'blank'     },
+    { type: 'review'    },
+    { type: 'deco'      },
+    { type: 'review'    },
+    { type: 'blank'     },
+    { type: 'component' },
+    { type: 'deco'      },
+  ];
+
+  /* ============================================================
+     二、SVG 内容模板(与空白白卡风格统一:白底 + 金/灰点缀)
+     ============================================================ */
+
+  // —— 客户评价卡(复用真实项目"客户怎么说"模块的设计与内容) ——
+  // ★ 若真实项目目录中的卡片有更新,只需改这里的数据 ★
+  const REVIEWS = [
+    { text: '以前写一份方案要半天，现在用他们做的智能助手，半小时就能出初稿，质量还更稳。', author: '广告公司创始人' },
+    { text: '客户跟进再也不用靠人脑记忆了，系统自动提醒、自动回复，漏单率降了八成。',     author: '电商运营负责人' },
+    { text: '最满意的是交付方式，不是给个 demo 就走，而是真的能让我们团队接手继续用。',   author: '企业信息化负责人' },
+    { text: '直播脚本生成工具上线后，新主播上手时间从两周缩短到三天。',                   author: '直播团队负责人' },
+    { text: '内部知识库建好之后，新员工培训周期明显缩短，常见问题不用反复问了。',         author: '培训机构运营' },
+  ];
+  function reviewHTML(i) {
+    const r = REVIEWS[i % REVIEWS.length];
+    return `<div class="review-card">
+      <div class="quote">“</div>
+      <p class="text">${r.text}</p>
+      <div class="author">${r.author}</div>
+    </div>`;
+  }
+
+  // —— 空白图片位 ——
+  function blankSVG() {
+    return `
+    <svg viewBox="0 0 280 230" preserveAspectRatio="xMidYMid slice">
+      <rect width="280" height="230" fill="#ffffff"/>
+      <rect x="18" y="18" width="244" height="194" rx="10" fill="#f7f9fc"
+            stroke="#c9ccd6" stroke-width="1.5" stroke-dasharray="7 6"/>
+      <g transform="translate(140,96)" opacity="0.55">
+        <circle cx="20" cy="-16" r="9" fill="#c9b28b"/>
+        <path d="M-34 22 L-12 -8 L4 10 L16 -6 L36 22 Z" fill="#8a93a6"/>
+      </g>
+      <text x="140" y="152" font-size="13" fill="#8a93a6" text-anchor="middle" font-family="sans-serif">图片占位</text>
+      <text x="140" y="172" font-size="10" fill="#b6bdcb" text-anchor="middle" font-family="sans-serif">可替换为 &lt;img&gt; 或任意组件</text>
+    </svg>`;
+  }
+
+  // —— 组件卡占位(示例:迷你数据看板) ——
+  function componentSVG(wide) {
+    const w = wide ? 500 : 280;
+    return `
+    <svg viewBox="0 0 ${w} 230" preserveAspectRatio="xMidYMid slice">
+      <rect width="${w}" height="230" fill="#ffffff"/>
+      <rect width="${w}" height="4" fill="#1a1e26"/>
+      <text x="24" y="34" font-size="13" font-weight="700" fill="#1a202c" font-family="sans-serif">组件卡片占位</text>
+      <text x="24" y="52" font-size="10" fill="#8a93a6" font-family="sans-serif">COMPONENT SLOT · 可嵌入任意 HTML 组件</text>
+      <!-- 迷你柱状图示意 -->
+      <g>
+        ${[46, 72, 58, 96, 80, 118, 104].map((h, k) =>
+          `<rect x="${30 + k * 26}" y="${200 - h}" width="14" height="${h}" rx="3" fill="${k % 2 ? '#c9b28b' : '#1a1e26'}" opacity="${k % 2 ? 0.9 : 0.85}"/>`).join('')}
+      </g>
+      <rect x="24" y="200" width="${w - 48}" height="1.5" fill="#e2e6ee"/>
+      <!-- 右侧统计示意(宽幅时可见) -->
+      ${wide ? `
+      <g font-family="sans-serif">
+        <rect x="240" y="70" width="230" height="56" rx="10" fill="#f4f6fa"/>
+        <text x="258" y="96" font-size="11" fill="#6b7a8f">满意度</text>
+        <text x="258" y="116" font-size="20" font-weight="700" fill="#1a202c">98.6%</text>
+        <rect x="240" y="140" width="230" height="56" rx="10" fill="#f4f6fa"/>
+        <text x="258" y="166" font-size="11" fill="#6b7a8f">合作品牌</text>
+        <text x="258" y="186" font-size="20" font-weight="700" fill="#c9b28b">120+</text>
+      </g>` : ''}
+    </svg>`;
+  }
+
+  // —— 装饰帧(帧号) ——
+  function decoHTML(num) {
+    return `<div class="deco-body"><div class="num">${num}</div><div class="cap">FRAME</div></div>`;
+  }
+
+  /* ============================================================
+     三、构建胶卷 & 弯曲 3D 排布
+     ============================================================ */
+  const stage = document.getElementById('stage');
+  const R = 2600;                 // 弯曲半径(px),越大越平缓
+  const FILM_H = () => Math.min(Math.max(window.innerHeight * 0.42, 260), 380);
+  const BASE_W = () => Math.min(Math.max(window.innerWidth * 0.24, 210), 300);
+
+  let frames = [];   // { el, w, x(在胶卷带上的起始位置) }
+  let totalW = 0;
+
+  function build() {
+    stage.innerHTML = '';
+    frames = [];
+    const bw = BASE_W(), filmH = FILM_H();
+    let acc = 0;
+    let reviewIdx = 0;   // 评价按 REVIEWS 顺序依次分配
+
+    FRAME_DEFS.forEach((def, i) => {
+      const w = def.wide ? Math.round(bw * 1.8) : bw;
+      const el = document.createElement('div');
+      el.className = 'frame';
+      el.style.width = w + 'px';
+      el.style.height = filmH + 'px';
+
+      // 胶卷编号:1, 1A, 2, 2A ……(仿胶片标记)
+      const num = `${Math.floor(i / 2) + 1}${i % 2 ? 'A' : ''}`;
+
+      let body;
+      switch (def.type) {
+        case 'review':    body = `<div class="slot">${reviewHTML(reviewIdx++)}</div>`; break;
+        case 'blank':     body = `<div class="slot">${blankSVG()}</div>`; break;
+        case 'component': body = `<div class="slot">${componentSVG(!!def.wide)}</div>`; break;
+        default:          body = decoHTML(num);
+      }
+
+      el.innerHTML = `
+        <div class="edge edge-top"><span>FUJI&nbsp;RDR</span></div>
+        ${body}
+        <div class="edge edge-bottom"><span>${num}</span></div>`;
+
+      // 预留点击接口(正式版可弹详情)
+      el.addEventListener('click', () => {
+        el.style.transition = 'filter .3s';
+        el.style.filter = 'brightness(1.4)';
+        setTimeout(() => el.style.filter = '', 300);
+      });
+
+      stage.appendChild(el);
+      frames.push({ el, w, x: acc });
+      acc += w;   // 帧与帧无缝相接,形成连续胶卷
+    });
+    totalW = acc;
+  }
+
+  /* ============================================================
+     四、动画:右 → 左 循环滑动,悬停缓停
+     ============================================================ */
+  const SPEED = 90;              // px/s,约 1~2 秒掠过一张卡
+  let offset = 0;
+  let speed = SPEED, target = SPEED;
+  let lastT = performance.now();
+
+  stage.addEventListener('mouseenter', () => target = 0);
+  stage.addEventListener('mouseleave', () => target = SPEED);
+  stage.addEventListener('touchstart', () => target = 0, { passive: true });
+  stage.addEventListener('touchend',  () => target = SPEED);
+
+  function tick(now) {
+    const dt = Math.min((now - lastT) / 1000, 0.05);
+    lastT = now;
+
+    // 启停缓动
+    speed += (target - speed) * 0.07;
+    offset = (offset + speed * dt) % totalW;
+
+    const vw = window.innerWidth;
+    const cx = vw / 2;
+
+    for (const f of frames) {
+      // 帧中心相对视口中心的距离(已做循环取模)
+      let dx = f.x + f.w / 2 - offset - cx;
+      if (dx < -totalW / 2) dx += totalW;
+      if (dx >  totalW / 2) dx -= totalW;
+
+      // 超出视野的帧直接隐藏,省性能
+      if (Math.abs(dx) > cx + f.w + 120) {
+        f.el.style.display = 'none';
+        continue;
+      }
+      f.el.style.display = '';
+
+      // —— 弯曲 3D:把帧贴到朝向观众的圆柱面上 ——
+      const theta = dx / R;                          // 弧度
+      const px = R * Math.sin(theta);                // 水平位置
+      const pz = R * (Math.cos(theta) - 1);          // 深度(两端后退)
+      const py = -R * (1 - Math.cos(theta)) * 0.35;  // 两端微微上扬,仿弯曲.png
+      const rotY = theta * 180 / Math.PI;            // 切向旋转
+
+      // 边缘渐隐
+      const fade = Math.max(0, 1 - Math.max(0, Math.abs(dx) - cx * 0.72) / (cx * 0.5));
+
+      f.el.style.opacity = fade.toFixed(3);
+      f.el.style.transform =
+        `translate3d(${px - f.w / 2}px, ${py}px, ${pz}px) ` +
+        `translateY(-50%) rotateY(${rotY}deg)`;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- 启动 & 自适应 ---------- */
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(build, 200);
+  });
+
+  build();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
