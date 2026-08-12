@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户案例展示 · Customer Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#fff9e6; --bg-2:#ffe8cc; --bg-3:#ffd9e8;
+    --ink:#1a1a1a; --ink-soft:#6b6b6b;
+    --magenta:#c026d3; --magenta-2:#d946ef;
+    --card-bg:#fffdf8;
+    --shadow-sm:0 4px 20px rgba(0,0,0,.06);
+    --shadow-lg:0 12px 32px rgba(0,0,0,.12);
+    --ease-out:cubic-bezier(.25,.46,.45,.94);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1);
+    --ease-tab:cubic-bezier(.4,0,.2,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+
+  /* ============ 背景与区域容器 ============ */
+  .showcase{
+    position:relative;
+    min-height:100vh;
+    padding:64px 24px 120px;
+    background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 55%,var(--bg-3) 100%);
+    overflow:hidden;
+  }
+  .showcase::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(600px 300px at 15% 20%,rgba(217,70,239,.08),transparent 70%),
+      radial-gradient(700px 340px at 85% 15%,rgba(255,170,80,.18),transparent 70%);
+  }
+  .wrap{position:relative;max-width:1240px;margin:0 auto}
+
+  /* ============ 顶部 CTA ============ */
+  .cta-row{display:flex;justify-content:center;gap:16px;margin-bottom:56px;animation:fadeDown .6s var(--ease-out) both}
+  .btn{display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 32px;border-radius:12px;
+    font-size:17px;font-weight:600;text-decoration:none;transition:transform .25s var(--ease-out),box-shadow .25s var(--ease-out)}
+  .btn-primary{background:linear-gradient(135deg,#e040c8,#c026d3);color:#fff;box-shadow:0 6px 20px rgba(192,38,211,.35)}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(192,38,211,.45)}
+  .btn-ghost{background:rgba(255,255,255,.7);color:var(--ink);border:1.5px solid rgba(0,0,0,.12);backdrop-filter:blur(4px)}
+  .btn-ghost:hover{transform:translateY(-3px);background:#fff}
+
+  /* ============ 注释 + Tab 行 ============ */
+  .stage{position:relative;margin-bottom:36px}
+  .annotate{
+    position:absolute;top:-14px;width:190px;z-index:5;pointer-events:none;
+    font-family:'Caveat',cursive;font-weight:700;color:var(--magenta);
+    font-size:25px;line-height:1.15;text-transform:uppercase;letter-spacing:.02em;
+  }
+  .annotate span{display:inline-block}
+  .annotate .arrow{position:absolute;display:block;overflow:visible}
+  .annotate .arrow path{
+    fill:none;stroke:var(--magenta);stroke-width:2.5;stroke-linecap:round;
+    stroke-dasharray:var(--len,200);stroke-dashoffset:var(--len,200);
+    animation:draw 1.1s var(--ease-tab) .9s forwards;
+  }
+  .annotate-left{left:-8px;transform:rotate(-4deg);animation:slideInL .75s var(--ease-spring) .1s both}
+  .annotate-left span:nth-child(1){transform:rotate(-2deg)}
+  .annotate-left span:nth-child(2){transform:rotate(1.5deg) translateX(8px)}
+  .annotate-left span:nth-child(3){transform:rotate(-1deg) translateX(4px)}
+  .annotate-left .arrow{right:-70px;top:52px;width:110px;height:90px}
+  .annotate-right{right:-8px;text-align:right;transform:rotate(3deg);animation:slideInR .75s var(--ease-spring) .25s both}
+  .annotate-right span:nth-child(1){transform:rotate(2deg)}
+  .annotate-right span:nth-child(2){transform:rotate(-1.5deg) translateX(-6px)}
+  .annotate-right span:nth-child(3){transform:rotate(1deg) translateX(-4px)}
+  .annotate-right .arrow{left:-64px;top:56px;width:100px;height:80px}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  /* ============ Tab 导航 ============ */
+  .tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;position:relative;z-index:2;
+    padding:0 220px;animation:fadeDown .55s var(--ease-out) .35s both}
+  .tab{
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    padding:9px 18px;border-radius:999px;border:1.5px solid rgba(0,0,0,.14);
+    background:rgba(255,255,255,.55);color:var(--ink);cursor:pointer;
+    transition:background .2s ease,color .2s ease,border-color .2s ease,transform .2s var(--ease-out);
+  }
+  .tab:hover{transform:translateY(-2px);background:rgba(255,255,255,.9)}
+  .tab.active{background:#232323;color:#fff;border-color:#232323}
+  .tab:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+
+  /* ============ 卡片网格 ============ */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;position:relative;z-index:2}
+  .grid.exit .card{opacity:0;transform:translateX(-36px);transition:opacity .25s ease,transform .25s ease}
+  .grid.enter .card{animation:slideInCard .35s var(--ease-tab) backwards}
+  .grid.enter .card:nth-child(2){animation-delay:.05s}
+  .grid.enter .card:nth-child(3){animation-delay:.1s}
+
+  .card{
+    position:relative;background:var(--card-bg);border-radius:18px;overflow:visible;cursor:pointer;
+    box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.05);
+    transition:transform .3s ease-out,box-shadow .3s ease-out;
+    animation:riseIn .5s var(--ease-out) backwards;
+  }
+  .grid .card:nth-child(1){animation-delay:.45s}
+  .grid .card:nth-child(2){animation-delay:.57s}
+  .grid .card:nth-child(3){animation-delay:.69s}
+  .card:hover,.card.tilt-on{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+
+  /* 卡片右上角 ↗ 箭头：悬停/点击时出现 */
+  .go-arrow{
+    position:absolute;top:14px;right:16px;z-index:6;
+    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    font-size:21px;font-weight:700;color:var(--ink);background:rgba(255,255,255,.92);
+    border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,.12);
+    opacity:0;transform:translate(-8px,8px) scale(.7);
+    transition:opacity .3s var(--ease-out),transform .3s var(--ease-spring);
+  }
+  .card:hover .go-arrow,.card.tilt-on .go-arrow{opacity:1;transform:translate(0,0) scale(1)}
+
+  /* 截图区域（CSS 模拟界面截图） */
+  .shot{
+    position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:17px 17px 0 0;
+    transition:transform .5s cubic-bezier(.22,1.2,.36,1),box-shadow .5s var(--ease-out);
+    will-change:transform;transform-origin:center 75%;
+  }
+  .shot-inner{position:absolute;inset:0}
+  /* 悬停/点击：截图 3D 倾斜 + 放大弹出卡片边界 */
+  .card:hover .shot,.card.tilt-on .shot{
+    transform:perspective(900px) rotateX(5deg) rotate(2.5deg) scale(1.08) translateY(-8px);
+    box-shadow:0 26px 52px rgba(0,0,0,.24);
+    z-index:5;border-radius:14px;
+  }
+
+  .shot-bar{display:flex;align-items:center;gap:6px;padding:10px 14px}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .dot:nth-child(1){background:#ff5f57}.dot:nth-child(2){background:#febc2e}.dot:nth-child(3){background:#28c840}
+  .shot-url{margin-left:10px;flex:1;max-width:60%;height:14px;border-radius:7px;background:rgba(255,255,255,.18)}
+
+  .shot-body{padding:18px 22px}
+  .s-line{border-radius:4px;margin-bottom:9px}
+  .s-h{height:22px;width:72%;margin-bottom:14px}
+  .s-p{height:8px;width:56%}
+  .s-p2{height:8px;width:44%}
+  .s-btn{display:inline-block;height:22px;width:84px;border-radius:11px;margin-top:10px}
+  .s-cards{display:flex;gap:10px;margin-top:16px}
+  .s-card{flex:1;height:44px;border-radius:8px}
+
+  /* 各主题配色 */
+  .theme-dark{background:#171321}
+  .theme-dark .shot-bar{background:#241d33}
+  .theme-dark .s-h{background:linear-gradient(90deg,#ff5db1,#c026d3)}
+  .theme-dark .s-p,.theme-dark .s-p2{background:rgba(255,255,255,.25)}
+  .theme-dark .s-btn{background:#ff5db1}
+  .theme-dark .s-card{background:rgba(255,255,255,.09)}
+
+  .theme-orange{background:#ff7a45}
+  .theme-orange .shot-bar{background:#e85d2a}
+  .theme-orange .s-h{background:#171321}
+  .theme-orange .s-p,.theme-orange .s-p2{background:rgba(23,19,33,.45)}
+  .theme-orange .s-btn{background:#171321}
+  .theme-orange .s-card{background:rgba(23,19,33,.15)}
+
+  .theme-light{background:#f6f4ef}
+  .theme-light .shot-bar{background:#e9e6dd}
+  .theme-light .shot-url{background:rgba(0,0,0,.08)}
+  .theme-light .s-h{background:#171321}
+  .theme-light .s-p,.theme-light .s-p2{background:rgba(0,0,0,.18)}
+  .theme-light .s-btn{background:#c026d3}
+  .theme-light .s-card{background:rgba(0,0,0,.07)}
+
+  .theme-violet{background:#4c1d95}
+  .theme-violet .shot-bar{background:#3b1573}
+  .theme-violet .s-h{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+  .theme-violet .s-p,.theme-violet .s-p2{background:rgba(255,255,255,.28)}
+  .theme-violet .s-btn{background:#fbbf24}
+  .theme-violet .s-card{background:rgba(255,255,255,.1)}
+
+  .theme-teal{background:#0f766e}
+  .theme-teal .shot-bar{background:#0b5f59}
+  .theme-teal .s-h{background:#fef3c7}
+  .theme-teal .s-p,.theme-teal .s-p2{background:rgba(255,255,255,.3)}
+  .theme-teal .s-btn{background:#fef3c7}
+  .theme-teal .s-card{background:rgba(255,255,255,.12)}
+
+  .theme-navy{background:#1e3a8a}
+  .theme-navy .shot-bar{background:#172c6b}
+  .theme-navy .s-h{background:linear-gradient(90deg,#93c5fd,#60a5fa)}
+  .theme-navy .s-p,.theme-navy .s-p2{background:rgba(255,255,255,.3)}
+  .theme-navy .s-btn{background:#93c5fd}
+  .theme-navy .s-card{background:rgba(255,255,255,.1)}
+
+  /* 卡片信息栏 */
+  .info{
+    position:relative;z-index:4;background:var(--card-bg);
+    padding:20px 22px 18px;border-top:1px solid rgba(0,0,0,.06);
+    border-radius:0 0 17px 17px;
+  }
+  .info-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .proj{display:flex;align-items:center;gap:10px;min-width:0}
+  .proj-mark{width:30px;height:30px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:14px}
+  .proj-name{font-weight:700;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .avatars{display:flex;flex:none}
+  .avatar{
+    position:relative;width:34px;height:34px;border-radius:50%;border:2.5px solid #fff;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;
+    margin-left:-9px;transition:transform .2s var(--ease-out);cursor:pointer;
+  }
+  .avatar:first-child{margin-left:0}
+  .avatar:hover{transform:scale(1.12);z-index:3}
+  .avatar::after{
+    content:attr(data-name);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
+    background:#232323;color:#fff;font-size:11.5px;font-weight:500;padding:5px 10px;border-radius:7px;
+    white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:10;
+  }
+  .avatar:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .info-bottom{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-soft)}
+  .sep{opacity:.5}
+  .built{display:flex;align-items:center;gap:6px}
+  .plat{display:inline-flex;align-items:center;gap:5px;color:var(--ink)}
+  .plat-logo{width:16px;height:16px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;
+    color:#fff;font-size:10px;font-weight:800;flex:none}
+
+  /* ============ 动画定义 ============ */
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideInL{from{opacity:0;transform:translateX(-34px) rotate(-4deg)}to{opacity:1;transform:translateX(0) rotate(-4deg)}}
+  @keyframes slideInR{from{opacity:0;transform:translateX(34px) rotate(3deg)}to{opacity:1;transform:translateX(0) rotate(3deg)}}
+  @keyframes riseIn{from{opacity:0;transform:translateY(42px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideInCard{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+  /* ============ 响应式 ============ */
+  @media (max-width:1024px){
+    .tabs{padding:0 170px}
+    .annotate{width:150px;font-size:21px}
+  }
+  @media (max-width:900px){
+    .tabs{padding:0}
+    .annotate{display:none}
+    .grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:600px){
+    .showcase{padding:48px 16px 80px}
+    .grid{grid-template-columns:1fr}
+    .cta-row{flex-direction:column;align-items:stretch}
+    .btn{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<section class="showcase" id="showcase">
+  <div class="wrap">
+
+    <!-- 顶部 CTA -->
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#">Sign up for free</a>
+      <a class="btn btn-ghost" href="#">Is Outseta for me?</a>
+    </div>
+
+    <!-- 注释 + Tab -->
+    <div class="stage">
+      <!-- 左侧手写注释 -->
+      <div class="annotate annotate-left">
+        <span>See what our</span><br>
+        <span>customers are</span><br>
+        <span>building</span>
+        <svg class="arrow" viewBox="0 0 110 90" style="--len:220">
+          <path d="M8 8 C 50 10, 80 30, 88 62 M 88 62 l -12 -6 M 88 62 l 4 -13"/>
+        </svg>
+      </div>
+
+      <!-- 右侧手写注释 -->
+      <div class="annotate annotate-right">
+        <span>$100K in the</span><br>
+        <span>first 48 hours</span><br>
+        <span>with Outseta</span>
+        <svg class="arrow" viewBox="0 0 100 80" style="--len:200">
+          <path d="M92 6 C 55 10, 25 28, 14 58 M 14 58 l 13 -5 M 14 58 l -3 -13"/>
+        </svg>
+      </div>
+
+      <!-- Tab 导航 -->
+      <nav class="tabs" id="tabs" role="tablist" aria-label="案例分类"></nav>
+    </div>
+
+    <!-- 卡片网格 -->
+    <div class="grid" id="grid"></div>
+
+  </div>
+</section>
+
+<script>
+/* ============ 数据 ============ */
+const PLATFORMS = {
+  webflow:     { name:'Webflow',     color:'#146ef5', letter:'W' },
+  framer:      { name:'Framer',      color:'#111111', letter:'F' },
+  wordpress:   { name:'WordPress',   color:'#21759b', letter:'W' },
+  react:       { name:'React',       color:'#0ea5e9', letter:'R' },
+  squarespace: { name:'Squarespace', color:'#222222', letter:'S' },
+};
+
+const CATEGORIES = ['Sites','SaaS Products','Clubs','Associations','Courses','Communities','Membership Sites'];
+
+const CASES = [
+  // Courses
+  { id:1, title:'Snow Them',          category:'Courses',          tag:'Course',      platform:'webflow', theme:'theme-dark',   markColor:'#ff5db1', mark:'S', creators:[{n:'Rob Hope',h:'@robhope',c:'#f97316'},{n:'Matt Evans',h:'@mattevans',c:'#8b5cf6'}] },
+  { id:2, title:'Making UX Decisions',category:'Courses',          tag:'Course/book', platform:'framer',  theme:'theme-orange', markColor:'#171321', mark:'M', creators:[{n:'Tom',h:'@designertom',c:'#0ea5e9'}] },
+  { id:3, title:'OSMO Dev Toolkit',   category:'Courses',          tag:'Course/book', platform:'webflow', theme:'theme-light',  markColor:'#6d28d9', mark:'✳', creators:[{n:'Ilja van Eck',h:'@iljavaneck',c:'#e11d48'},{n:'Dennis S.',h:'@codebydennis',c:'#0f766e'}] },
+  // Sites
+  { id:4, title:'Atlas Studio',       category:'Sites',            tag:'Site',        platform:'webflow', theme:'theme-light',  markColor:'#146ef5', mark:'A', creators:[{n:'Lena K.',h:'@lenak',c:'#f59e0b'}] },
+  { id:5, title:'Pixel & Prose',      category:'Sites',            tag:'Site',        platform:'squarespace', theme:'theme-navy', markColor:'#1e3a8a', mark:'P', creators:[{n:'Owen M.',h:'@owenm',c:'#10b981'},{n:'Rita C.',h:'@ritac',c:'#d946ef'}] },
+  { id:6, title:'Fern & Field',       category:'Sites',            tag:'Site',        platform:'wordpress', theme:'theme-teal', markColor:'#0f766e', mark:'F', creators:[{n:'June P.',h:'@junep',c:'#6366f1'}] },
+  // SaaS Products
+  { id:7, title:'Metricly',           category:'SaaS Products',    tag:'SaaS',        platform:'react',   theme:'theme-navy',   markColor:'#0ea5e9', mark:'M', creators:[{n:'Dev Anand',h:'@devanand',c:'#f97316'}] },
+  { id:8, title:'Formflow',           category:'SaaS Products',    tag:'SaaS',        platform:'react',   theme:'theme-violet', markColor:'#4c1d95', mark:'F', creators:[{n:'Sara N.',h:'@saran',c:'#e11d48'},{n:'Kai W.',h:'@kaiw',c:'#0ea5e9'}] },
+  { id:9, title:'Billboard OS',       category:'SaaS Products',    tag:'SaaS',        platform:'webflow', theme:'theme-dark',   markColor:'#c026d3', mark:'B', creators:[{n:'Milo T.',h:'@milot',c:'#84cc16'}] },
+  // Clubs
+  { id:10, title:'Runners United',    category:'Clubs',            tag:'Club',        platform:'webflow', theme:'theme-teal',   markColor:'#f59e0b', mark:'R', creators:[{n:'Amy Z.',h:'@amyz',c:'#8b5cf6'}] },
+  { id:11, title:'Chess Circle',      category:'Clubs',            tag:'Club',        platform:'wordpress', theme:'theme-light', markColor:'#171321', mark:'C', creators:[{n:'Piotr L.',h:'@piotrl',c:'#0f766e'},{n:'Ana B.',h:'@anab',c:'#e11d48'}] },
+  // Associations
+  { id:12, title:'Design Guild',      category:'Associations',     tag:'Association', platform:'webflow', theme:'theme-orange', markColor:'#ff7a45', mark:'D', creators:[{n:'Chris V.',h:'@chrisv',c:'#6366f1'}] },
+  { id:13, title:'Writers Forum',     category:'Associations',     tag:'Association', platform:'framer',  theme:'theme-light',  markColor:'#111111', mark:'W', creators:[{n:'Nina S.',h:'@ninas',c:'#f97316'}] },
+  // Communities
+  { id:14, title:'Indie Hackers CN',  category:'Communities',      tag:'Community',   platform:'react',   theme:'theme-violet', markColor:'#fbbf24', mark:'I', creators:[{n:'Leo H.',h:'@leoh',c:'#10b981'},{n:'Mia D.',h:'@miad',c:'#d946ef'}] },
+  { id:15, title:'Maker Town',        category:'Communities',      tag:'Community',   platform:'webflow', theme:'theme-dark',   markColor:'#ff5db1', mark:'M', creators:[{n:'Zoe F.',h:'@zoef',c:'#0ea5e9'}] },
+  // Membership Sites
+  { id:16, title:'Yoga At Home',      category:'Membership Sites', tag:'Membership',  platform:'webflow', theme:'theme-teal',   markColor:'#0f766e', mark:'Y', creators:[{n:'Emma R.',h:'@emmar',c:'#e11d48'}] },
+  { id:17, title:'Guitar Masterclass',category:'Membership Sites', tag:'Membership',  platform:'framer',  theme:'theme-navy',   markColor:'#1e3a8a', mark:'G', creators:[{n:'Sam O.',h:'@samo',c:'#84cc16'},{n:'Ivy L.',h:'@ivyl',c:'#f59e0b'}] },
+];
+
+/* ============ 渲染 ============ */
+const tabsEl = document.getElementById('tabs');
+const gridEl = document.getElementById('grid');
+let activeCategory = 'Courses';
+
+function renderTabs(){
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach((cat, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat === activeCategory ? ' active' : '');
+    btn.textContent = cat;
+    btn.setAttribute('role','tab');
+    btn.setAttribute('aria-selected', cat === activeCategory);
+    btn.dataset.index = i;
+    btn.addEventListener('click', () => switchCategory(cat));
+    tabsEl.appendChild(btn);
+  });
+}
+
+function shotHTML(theme){
+  return `
+    <div class="shot ${theme}">
+      <div class="shot-inner">
+        <div class="shot-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="shot-url"></span>
+        </div>
+        <div class="shot-body">
+          <div class="s-line s-h"></div>
+          <div class="s-line s-p"></div>
+          <div class="s-line s-p2"></div>
+          <span class="s-btn"></span>
+          <div class="s-cards">
+            <div class="s-card"></div><div class="s-card"></div><div class="s-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function cardHTML(c){
+  const p = PLATFORMS[c.platform];
+  const avatars = c.creators.map(a =>
+    `<span class="avatar" data-name="${a.n} · ${a.h}" style="background:${a.c}">${a.n[0]}</span>`
+  ).join('');
+  return `
+    <article class="card" aria-label="${c.title}">
+      <span class="go-arrow">↗</span>
+      ${shotHTML(c.theme)}
+      <div class="info">
+        <div class="info-top">
+          <div class="proj">
+            <span class="proj-mark" style="background:${c.markColor}">${c.mark}</span>
+            <span class="proj-name">${c.title}</span>
+          </div>
+          <div class="avatars">${avatars}</div>
+        </div>
+        <div class="info-bottom">
+          <span>${c.tag}</span>
+          <span class="sep">·</span>
+          <span class="built">Built on
+            <span class="plat"><span class="plat-logo" style="background:${p.color}">${p.letter}</span>${p.name}</span>
+          </span>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderCards(){
+  const list = CASES.filter(c => c.category === activeCategory).slice(0, 3);
+  gridEl.innerHTML = list.map(cardHTML).join('');
+}
+
+/* Tab 切换：滑出 -> 替换 -> 滑入 */
+function switchCategory(cat){
+  if (cat === activeCategory) return;
+  activeCategory = cat;
+  renderTabs();
+  gridEl.classList.add('exit');
+  setTimeout(() => {
+    gridEl.classList.remove('exit');
+    gridEl.classList.add('enter');
+    renderCards();
+    gridEl.addEventListener('animationend', () => gridEl.classList.remove('enter'), { once:true });
+  }, 260);
+}
+
+/* 点击卡片：切换倾斜放大效果（触屏设备上没有 hover，用点击模拟） */
+gridEl.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (!card) return;
+  gridEl.querySelectorAll('.card.tilt-on').forEach(c => { if (c !== card) c.classList.remove('tilt-on'); });
+  card.classList.toggle('tilt-on');
+});
+
+/* 键盘导航：← → 切换 Tab */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const i = CATEGORIES.indexOf(activeCategory);
+  const next = e.key === 'ArrowRight'
+    ? (i + 1) % CATEGORIES.length
+    : (i - 1 + CATEGORIES.length) % CATEGORIES.length;
+  switchCategory(CATEGORIES[next]);
+});
+
+/* 初始化 */
+renderTabs();
+renderCards();
+</script>
+</body>
+</html>

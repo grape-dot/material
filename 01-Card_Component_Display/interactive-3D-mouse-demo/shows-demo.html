@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HALF OF EIGHT 风格 · 3D 作品展示</title>
+<style>
+  /* ============ 基础风格：暗色 + 双语排版（学习 halfof8.com/journal） ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #0e1611;
+    color: #f2f0eb;
+    font-family: "Helvetica Neue", Arial, "Hiragino Sans", "Microsoft YaHei", sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 顶部导航 */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 34px; pointer-events: none;
+  }
+  .logo { font-size: 15px; letter-spacing: .35em; font-weight: 700; }
+  .logo sup { font-size: 10px; }
+  nav { font-size: 12px; letter-spacing: .18em; opacity: .65; }
+  .jp { opacity: .5; font-size: 10px; margin-left: 10px; letter-spacing: .3em; }
+
+  .hint {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; letter-spacing: .22em; opacity: .45; z-index: 5;
+    white-space: nowrap; transition: opacity .3s;
+  }
+
+  /* ============ 3D 舞台 ============ */
+  .stage {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 1000px;
+  }
+
+  /* 网格模式（mode-grid）：4 列网格 */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 200px);
+    gap: 28px;
+    transform-style: preserve-3d;
+    transition: transform .65s cubic-bezier(.22,.61,.36,1);
+  }
+  /* 横排模式（mode-slider / mode-info）：一排横放，由 JS 平移使激活卡居中 */
+  .mode-slider .grid, .mode-info .grid {
+    display: flex; gap: 60px; width: max-content;
+  }
+
+  /* ============ 卡片 ============ */
+  .card {
+    position: relative;
+    width: 200px; aspect-ratio: 4 / 5;
+    cursor: pointer;
+    transition: width .65s cubic-bezier(.22,.61,.36,1),
+                transform .65s cubic-bezier(.22,.61,.36,1),
+                opacity .45s;
+  }
+  .mode-slider .card, .mode-info .card { width: 260px; }
+  .mode-slider .card.is-side     { transform: scale(.92); opacity: .5; }
+  .mode-slider .card.is-active   { transform: scale(1.22); }   /* 点击后放大 */
+  .mode-info  .card              { opacity: .25; }
+
+  /* 卡片内层：入场纵深 + 鼠标倾斜都由它承担 */
+  .card-inner {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+    opacity: 0;
+    transform: translateZ(-500px) rotateY(45deg);   /* 复刻原站入场初始态 */
+  }
+  .mode-grid .card-inner { transition: opacity .5s, transform .5s; transition-delay: var(--d); }
+  .mode-grid.live .card-inner { transition: none; }               /* 入场后交还 JS 驱动 */
+  .mode-slider .card-inner, .mode-info .card-inner { transition: transform .55s, opacity .5s; }
+  body.ready .card-inner { opacity: 1; transform: translateZ(0) rotateY(0); }
+
+  .face {
+    position: absolute; inset: 0;
+    border-radius: 8px; overflow: hidden;
+    background: #000;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 14px;
+  }
+  .art {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    transition: transform .6s cubic-bezier(.2,.6,.2,1);
+  }
+  .mode-grid .card:hover .art { transform: scale(1.06); }
+  .num {
+    position: absolute; top: 12px; left: 14px; z-index: 2;
+    font-size: 10px; letter-spacing: .25em; opacity: .75;
+    text-shadow: 0 1px 6px rgba(0,0,0,.6);
+  }
+  .label {
+    position: relative; z-index: 2;
+    font-size: 11px; letter-spacing: .12em;
+    text-shadow: 0 1px 8px rgba(0,0,0,.6);
+  }
+
+  /* 待开发占位卡片 */
+  .card.is-ph .art { background: linear-gradient(160deg, #1a201b, #10150f 70%); }
+  .card.is-ph .face { outline: 1px dashed rgba(255,255,255,.14); outline-offset: -1px; }
+  .ph-mark {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; color: rgba(255,255,255,.35);
+  }
+  .ph-mark b { font-size: 34px; font-weight: 300; letter-spacing: .1em; }
+  .ph-mark span { font-size: 10px; letter-spacing: .3em; }
+
+  /* ============ 详情浮层（mode-info） ============ */
+  .info-overlay {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(5,10,7,.35);
+    opacity: 0; pointer-events: none; transition: opacity .4s;
+  }
+  .mode-info .info-overlay { opacity: 1; pointer-events: auto; }
+  .info-panel {
+    width: min(520px, 88vw); max-height: 72vh; overflow-y: auto;
+    background: rgba(16,22,18,.92);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.1); border-radius: 6px;
+    padding: 34px 38px;
+    transform: translateY(14px); transition: transform .45s;
+  }
+  .mode-info .info-panel { transform: none; }
+  .info-panel::-webkit-scrollbar { width: 4px; }
+  .info-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); }
+  .info-panel h2 { font-size: 26px; font-weight: 600; line-height: 1.35; margin-bottom: 18px; }
+  .info-body p { font-size: 13.5px; line-height: 1.9; color: #c9c4b8; margin-bottom: 14px; }
+  .info-body .soon {
+    font-size: 22px; letter-spacing: .4em; text-align: center;
+    color: #f2f0eb; margin: 26px 0 18px;
+  }
+
+  /* ============ 底部控制条（横排/详情模式显示） ============ */
+  .controls {
+    position: fixed; bottom: 24px; left: 50%; z-index: 30;
+    display: flex; align-items: center; gap: 26px;
+    transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    transition: transform .45s, opacity .45s;
+  }
+  .mode-slider .controls, .mode-info .controls {
+    transform: translate(-50%, 0); opacity: 1; pointer-events: auto;
+  }
+  .mode-slider ~ .hint, .mode-info ~ .hint { opacity: 0; }
+  .ctl {
+    background: none; border: none; color: #f2f0eb; font: inherit;
+    font-size: 12px; letter-spacing: .14em; cursor: pointer; opacity: .85;
+    white-space: nowrap;
+  }
+  .ctl:hover { opacity: 1; }
+  .ctl.icon {
+    width: 26px; height: 26px; border: 1px solid rgba(255,255,255,.35);
+    border-radius: 3px; display: flex; align-items: center; justify-content: center;
+    text-decoration: none; font-size: 13px;
+  }
+  .ctl-title {
+    font-size: 12px; letter-spacing: .1em; opacity: .8;
+    border-bottom: 1px solid rgba(255,255,255,.3);
+    padding-bottom: 2px; min-width: 200px; text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .disabled { opacity: .25 !important; pointer-events: none; }
+
+  /* 左下角分页指示 */
+  .pager {
+    position: fixed; left: 22px; bottom: 28px; z-index: 30;
+    display: flex; gap: 5px; opacity: 0; pointer-events: none; transition: opacity .4s;
+  }
+  .mode-slider .pager, .mode-info .pager { opacity: 1; pointer-events: auto; }
+  .pg { width: 14px; height: 8px; background: rgba(255,255,255,.18); cursor: pointer; }
+  .pg.on { background: #f2f0eb; }
+</style>
+</head>
+<body class="mode-grid">
+
+<header>
+  <div class="logo">HALF OF EIGHT<sup> ½</sup><span class="jp">日誌の半分</span></div>
+  <nav>ABOUT &nbsp; JOURNAL &nbsp; BOOK &nbsp; TUNES</nav>
+</header>
+
+<div class="stage">
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- 详情浮层 -->
+<div class="info-overlay" id="infoOverlay">
+  <div class="info-panel" id="infoPanel">
+    <h2 id="infoTitle"></h2>
+    <div class="info-body" id="infoBody"></div>
+  </div>
+</div>
+
+<!-- 底部控制条 -->
+<div class="controls" id="controls">
+  <button class="ctl" id="btnPrev">← Previous</button>
+  <span class="ctl-title" id="ctlTitle"></span>
+  <button class="ctl icon" id="btnInfo" title="详情">i</button>
+  <a class="ctl icon" id="btnDownload" href="#" download title="下载原图">↓</a>
+  <button class="ctl" id="btnNext">Next →</button>
+</div>
+
+<!-- 分页指示 -->
+<div class="pager" id="pager"></div>
+
+<div class="hint" id="hint"></div>
+
+<script>
+/* =========================================================
+ * 三级交互（复刻 halfof8.com/journal 的模式流转）：
+ *   Grid（网格·鼠标跟随倾斜）
+ *     → 点击卡片：该卡放大，全部卡片转为横排（Slider）
+ *       → 再次点击激活卡：弹出详情浮层（Info）
+ *         · 待开发卡片 → 显示「敬请期待」
+ *   ESC 逐级返回；← → 键或底部按钮切换；左下角分页跳转。
+ * ========================================================= */
+
+const COLS = 4, ROWS = 3, COUNT = COLS * ROWS;
+const MAX_TILT = 28;      // 网格模式最大倾角（度）
+const FOCAL    = 900;     // 等效焦距：越大旋转越柔和
+const LERP     = 0.08;    // 平滑系数：越小越慵懒
+const FADE_MIN = 0.25;    // 距离衰减最低透明度
+const SLIDER_W = 260, SLIDER_GAP = 60;
+
+/* ============================================================
+ * ★ 作品配置区 —— 真实图片按「由中间向外扩散」的顺序添加 ★
+ * 第 1 项放在网格正中心，第 2 项在中心右侧，之后依次向外扩散
+ * （中间位置最醒目，方便展示）。不足 12 项时，剩余卡槽自动
+ * 成为「待开发」占位卡片，点击详情显示「敬请期待」。
+ *
+ * 字段：
+ *   img   真实图片路径，如 'images/work-01.jpg'（不填则用渐变占位）
+ *   title 作品标题
+ *   story 详情文案（数组，每元素一个段落）
+ * ============================================================ */
+const WORKS = [
+  { // img: 'images/work-01.jpg',   ← 取消注释并填入真实图片路径
+    title: 'Mystical Creatures of Oniyama Jigoku',
+    grad: ['#2e4a3d', '#9fbf8f'],
+    story: [
+      '冰的残片成为叙事画布，古老的青铜管盘踞四角。管身上的日文刻痕与岁月留下的伤疤，为作品添上一段未被讲述的历史。',
+      '从冰晶中心浮现两个身影：其一是石雕的日本龙——水泽的守护者，蒸汽自口中涌出，既疏导压力，也释放古老传说的低语；其二是木雕的河童，顽皮地塞住另一根管口。石龙与木河童一起，把神话织进日常。',
+      '灵感取自别府的硫磺岩与九大地狱温泉。蒸汽、岩石与神话，在日常与异界之间，只讲一半的故事。'
+    ]},
+  { // img: 'images/work-02.jpg',
+    title: '山の稜線 · Ridge Lines',
+    grad: ['#33405a', '#8fa8d9'],
+    story: [
+      '山脊在雾中时隐时现，像一行被擦去一半的诗。',
+      '拍摄于清晨五点，光线尚未越过东侧棱线，整面山坡只有蓝与灰两种颜色。'
+    ]},
+  { // img: 'images/work-03.jpg',
+    title: 'Half of ∞',
+    grad: ['#4a3524', '#d9a86f'],
+    story: [
+      '∞ 的一半，仍然是 ∞。',
+      '关于"一半"这件小事：把故事讲一半，另一半留给看作品的人。'
+    ]},
+];
+/* ↑ 示例数据：添加真实图片时替换/追加即可，顺序即中心→外的顺序 */
+
+/* ---------- 由中间向外扩散的卡槽顺序（按到网格中心距离排序） ---------- */
+const cx = (COLS - 1) / 2, cy = (ROWS - 1) / 2;
+const dist = i => { const x = i % COLS - cx, y = (i / COLS | 0) - cy; return x * x + y * y; };
+const centerOutOrder = [...Array(COUNT).keys()].sort((a, b) => dist(a) - dist(b));
+// 4×3 网格下为：[5, 6, 1, 2, 9, 10, 4, 7, 0, 3, 8, 11]
+
+/* ---------- 生成卡片 ---------- */
+const grid = document.getElementById('grid');
+const cards = [];
+for (let i = 0; i < COUNT; i++) {
+  const work = WORKS[centerOutOrder.indexOf(i)] || null;   // 中心槽位先分到作品
+  const el = document.createElement('div');
+  el.className = 'card' + (work ? '' : ' is-ph');
+  el.style.setProperty('--d', (0.25 + i * 0.05) + 's');
+  const grad = work ? work.grad : ['#1a201b', '#10150f'];
+  const artStyle = work && work.img
+    ? `background-image:url('${work.img}')`
+    : `background:linear-gradient(${135 + i * 30}deg, ${grad[0]}, ${grad[1]} 60%, #0b0f0c 130%)`;
+  el.innerHTML = `
+    <div class="card-inner">
+      <div class="face">
+        <div class="art" style="${artStyle}"></div>
+        ${work ? '' : '<div class="ph-mark"><b>½ ?</b><span>COMING SOON</span></div>'}
+        <span class="num">${String(i + 1).padStart(2, '0')} / ½</span>
+        <span class="label">${work ? work.title : '待开发'}</span>
+      </div>
+    </div>`;
+  el.addEventListener('click', () => onCardClick(i));
+  grid.appendChild(el);
+  cards.push({ el, inner: el.querySelector('.card-inner'), work, rx: 0, ry: 0, tx: 0, ty: 0 });
+}
+
+/* ---------- 模式状态 ---------- */
+const body = document.body;
+const hintEl = document.getElementById('hint');
+const ctlTitle = document.getElementById('ctlTitle');
+const btnInfo = document.getElementById('btnInfo');
+const btnDownload = document.getElementById('btnDownload');
+const infoOverlay = document.getElementById('infoOverlay');
+const infoPanel = document.getElementById('infoPanel');
+const infoTitle = document.getElementById('infoTitle');
+const infoBody = document.getElementById('infoBody');
+const pagerEl = document.getElementById('pager');
+let mode = 'grid', active = 0;
+
+/* 分页指示 */
+for (let i = 0; i < COUNT; i++) {
+  const d = document.createElement('div');
+  d.className = 'pg';
+  d.addEventListener('click', () => activate(i));
+  pagerEl.appendChild(d);
+}
+
+function onCardClick(i) {
+  if (mode === 'grid') { active = i; setMode('slider'); }        // ① 点击 → 放大横排
+  else if (mode === 'slider') {
+    if (i === active) setMode('info');                            // ② 再点激活卡 → 详情
+    else activate(i);                                             // 点其他卡 → 切换激活
+  }
+}
+
+function setMode(m) {
+  mode = m;
+  body.classList.remove('mode-grid', 'mode-slider', 'mode-info', 'live');
+  body.classList.add('mode-' + m);
+  if (m === 'grid') body.classList.add('live');
+  cards.forEach((c, k) => {
+    if (m !== 'grid') { c.inner.style.transform = ''; c.el.style.opacity = ''; }
+    c.el.classList.toggle('is-active', m !== 'grid' && k === active);
+    c.el.classList.toggle('is-side',   m !== 'grid' && k !== active);
+  });
+  if (m === 'grid') grid.style.transform = '';
+  else positionSlider();
+  if (m === 'info') fillInfo();
+  updateChrome();
+}
+
+function positionSlider() {
+  const total = COUNT * SLIDER_W + (COUNT - 1) * SLIDER_GAP;
+  const p = active * (SLIDER_W + SLIDER_GAP) + SLIDER_W / 2;
+  grid.style.transform = `translateX(${(total / 2 - p).toFixed(1)}px)`;  // 激活卡居中
+}
+
+function activate(i) {
+  active = (i + COUNT) % COUNT;
+  cards.forEach((c, k) => {
+    c.el.classList.toggle('is-active', k === active);
+    c.el.classList.toggle('is-side', k !== active);
+  });
+  positionSlider();
+  if (mode === 'info') fillInfo();
+  updateChrome();
+}
+
+/* 详情浮层内容：真实作品 → 故事；待开发卡片 → 敬请期待 */
+function fillInfo() {
+  const w = cards[active].work;
+  if (w) {
+    infoTitle.textContent = w.title;
+    infoBody.innerHTML = w.story.map(p => `<p>${p}</p>`).join('');
+  } else {
+    infoTitle.textContent = '待开发 · Coming Soon';
+    infoBody.innerHTML = `
+      <p class="soon">敬 请 期 待</p>
+      <p style="text-align:center;opacity:.6">この章はまだ書かれていない。<br>这一章节尚未完成，另一半故事正在路上。</p>`;
+  }
+  infoPanel.scrollTop = 0;
+}
+
+/* 底部控制条 / 分页 / 提示文案 */
+function updateChrome() {
+  const w = cards[active].work;
+  ctlTitle.textContent = w ? w.title : '待开发';
+  btnInfo.textContent = mode === 'info' ? '✕' : 'i';
+  const canDl = !!(w && w.img);
+  btnDownload.classList.toggle('disabled', !canDl);
+  btnDownload.href = canDl ? w.img : '#';
+  [...pagerEl.children].forEach((d, i) => d.classList.toggle('on', i === active));
+  hintEl.textContent =
+    mode === 'grid'   ? 'MOVE MOUSE TO TILT · CLICK A CARD · マウスで傾ける' :
+    mode === 'slider' ? '← → SWITCH · CLICK ACTIVE CARD FOR STORY · ESC BACK' :
+                        'ESC / ✕ CLOSE · ← → SWITCH';
+}
+
+/* 控制条事件 */
+document.getElementById('btnPrev').addEventListener('click', () => activate(active - 1));
+document.getElementById('btnNext').addEventListener('click', () => activate(active + 1));
+btnInfo.addEventListener('click', () => setMode(mode === 'info' ? 'slider' : 'info'));
+infoOverlay.addEventListener('click', e => { if (e.target === infoOverlay) setMode('slider'); });
+
+/* 键盘：ESC 逐级返回，← → 切换 */
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (mode === 'info') setMode('slider');
+    else if (mode === 'slider') setMode('grid');
+    return;
+  }
+  if (mode === 'grid') return;
+  if (e.key === 'ArrowRight') activate(active + 1);
+  if (e.key === 'ArrowLeft') activate(active - 1);
+});
+
+/* ---------- 网格模式：鼠标跟随倾斜（lookAt 等效 + lerp 平滑） ---------- */
+let pointer = { x: innerWidth / 2, y: innerHeight / 2, active: false };
+addEventListener('pointermove', e => {
+  pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true;
+});
+addEventListener('pointerleave', () => pointer.active = false);   // → resetLookAt()
+
+function tick() {
+  if (mode === 'grid') {
+    const vw = innerWidth, vh = innerHeight;
+    for (const c of cards) {
+      const r = c.el.getBoundingClientRect();
+      const dx = pointer.x - (r.left + r.width / 2);
+      const dy = pointer.y - (r.top + r.height / 2);
+      if (pointer.active) {
+        let ry = Math.atan2(dx, FOCAL) * 180 / Math.PI;           // 卡片"注视"指针
+        let rx = -Math.atan2(dy, FOCAL) * 180 / Math.PI;
+        c.ty = Math.max(-MAX_TILT, Math.min(MAX_TILT, ry));
+        c.tx = Math.max(-MAX_TILT, Math.min(MAX_TILT, rx));
+        const fade = 1 - 0.9 * Math.hypot(dx / (vw / 2), dy / (vh / 2));
+        c.el.style.opacity = Math.max(FADE_MIN, Math.min(1, fade)).toFixed(3);
+      } else {
+        c.tx = 0; c.ty = 0;                                       // resetLookAt()
+        c.el.style.opacity = 1;
+      }
+      c.rx += (c.tx - c.rx) * LERP;
+      c.ry += (c.ty - c.ry) * LERP;
+      c.inner.style.transform = `rotateX(${c.rx.toFixed(2)}deg) rotateY(${c.ry.toFixed(2)}deg)`;
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- 入场 ---------- */
+updateChrome();
+requestAnimationFrame(() => {
+  body.classList.add('ready');
+  setTimeout(() => { body.classList.add('live'); tick(); }, 900);
+});
+</script>
+</body>
+</html>

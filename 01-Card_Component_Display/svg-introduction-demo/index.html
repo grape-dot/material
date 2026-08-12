@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>产品介绍版块 · 4 卡片预览</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0A1F2C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;
+    background:#f6f7f9;
+    color:var(--ink);
+    padding:64px 24px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .lead{
+    max-width:1280px;margin:0 auto 28px;
+    font-size:13px;line-height:1.6;color:#5b6b78;
+  }
+  .lead b{color:var(--ink);}
+
+  /* ===== 容器与栅格 ===== */
+  .product-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    max-width:1280px;
+    margin:0 auto;
+    padding:0;
+  }
+  @media (max-width:1024px){ .product-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:640px){  .product-grid{grid-template-columns:1fr;} }
+
+  /* ===== 卡片本体 ===== */
+  .card{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:20px;
+    padding:30px;
+    overflow:hidden;
+    text-decoration:none;
+    color:inherit;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:transform .35s cubic-bezier(.2,.7,.2,1),
+               box-shadow .35s cubic-bezier(.2,.7,.2,1);
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(to right,  var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size:28px 28px;
+    background-position:-1px -1px;
+  }
+  .card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.18);
+  }
+
+  /* 四套配色 */
+  .card--green  { --bg:#D6F2D4; --grid:rgba(20,80,20,.18);  --ink:#0E3A12; --chip:#9CD49A; }
+  .card--pink   { --bg:#FBDBD3; --grid:rgba(120,30,30,.18); --ink:#9A1F1A; --chip:#E89189; }
+  .card--blue   { --bg:#D7E8FB; --grid:rgba(20,40,90,.18);  --ink:#0E2A6B; --chip:#9FB9E8; }
+  .card--purple { --bg:#E5DCFB; --grid:rgba(50,20,110,.18); --ink:#3A1E8C; --chip:#B7A4E8; }
+
+  /* ===== 文字 ===== */
+  .card__title{
+    font-family:"DM Serif Display","Songti SC",serif;
+    font-size:clamp(26px,2.4vw,38px);
+    font-weight:400;
+    line-height:1.1;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    position:relative;z-index:2;
+  }
+  .card__desc{
+    font-size:14px;font-weight:600;line-height:1.4;
+    max-width:22ch;position:relative;z-index:2;color:var(--ink);
+  }
+
+  /* 右下箭头圆圈 */
+  .card__arrow{
+    position:absolute;right:26px;bottom:26px;
+    width:38px;height:38px;border-radius:50%;
+    background:rgba(0,0,0,.06);
+    display:grid;place-items:center;font-size:16px;
+    transition:transform .35s cubic-bezier(.2,.7,.2,1),background .25s;
+    z-index:2;
+  }
+  .card:hover .card__arrow{ transform:translateX(6px); background:rgba(0,0,0,.12); }
+
+  /* ===== 插图区 ===== */
+  .card__art{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    pointer-events:none;
+    z-index:1;
+  }
+  .card__art svg{
+    width:58%;height:auto;
+    transition:transform .6s cubic-bezier(.2,.7,.2,1);
+  }
+  .card:hover .card__art svg{ transform:scale(1.04) rotate(.5deg); }
+
+  /* ===== 漂浮动画 ===== */
+  @keyframes float-y{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  @keyframes float-rot{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+  .float-y{animation:float-y 4.5s ease-in-out infinite;transform-origin:center;}
+  .float-rot{animation:float-rot 6s ease-in-out infinite;transform-origin:center;}
+
+  /* ===== 入场淡入上滑 ===== */
+  .card{opacity:0;transform:translateY(24px);}
+  .card.is-visible{opacity:1;transform:translateY(0);
+    transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1),
+               box-shadow .35s cubic-bezier(.2,.7,.2,1);}
+  .card:nth-child(1).is-visible{transition-delay:0ms;}
+  .card:nth-child(2).is-visible{transition-delay:80ms;}
+  .card:nth-child(3).is-visible{transition-delay:160ms;}
+  .card:nth-child(4).is-visible{transition-delay:240ms;}
+
+  @media (prefers-reduced-motion:reduce){
+    .card,.card__art svg,.card__arrow{animation:none!important;transition:none!important;}
+    .card{opacity:1;transform:none;}
+    .card:hover{transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<p class="lead">
+  <b>展示方式说明：</b>每个 SVG 被放在 <code>.card__art</code> 里，用 <code>position:absolute; inset:0; display:grid; place-items:center</code> 绝对居中铺满整张卡片；
+  SVG 宽度 = 卡片的 <b>58%</b>，viewBox 1:1 居中，四周留出标题与描述空间。描边色 <code>stroke="var(--ink)"</code> 与卡片主色联动，色块用主色低透明度制造"线稿+色块"层次。
+  内部 <code>&lt;g class="float-y"&gt;</code> 分组持续 4.5s 上下漂浮。下方即为 4 个主题的实际显示效果。
+</p>
+
+<section class="product-grid">
+
+  <!-- ① Agent（智能体） — 仿 Jasper.ai Agents 卡：三个文档 + 笑脸 + 装饰 -->
+  <a class="card card--green" href="#agent">
+    <h3 class="card__title">Agent</h3>
+    <div class="card__art">
+      <svg viewBox="0 0 120 120" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <!-- 文档 1：左上，纯文字行 -->
+        <g class="float-y">
+          <rect x="22" y="22" width="26" height="34" rx="2"/>
+          <line x1="28" y1="30" x2="42" y2="30"/>
+          <line x1="28" y1="36" x2="42" y2="36"/>
+          <line x1="28" y1="42" x2="38" y2="42"/>
+          <line x1="28" y1="48" x2="40" y2="48"/>
+        </g>
+        <!-- 文档 2：中右，笑脸 + 右上小绿色方块 -->
+        <g class="float-y" style="animation-delay:.2s">
+          <rect x="54" y="18" width="26" height="40" rx="2" fill="var(--chip)" fill-opacity=".55"/>
+          <rect x="74" y="18" width="6" height="6" fill="var(--ink)" stroke="none"/>
+          <circle cx="62" cy="36" r="1.5" fill="var(--ink)" stroke="none"/>
+          <circle cx="72" cy="36" r="1.5" fill="var(--ink)" stroke="none"/>
+          <path d="M60 44 Q67 50 74 44"/>
+        </g>
+        <!-- 文档 3：右下小文档 -->
+        <g class="float-y" style="animation-delay:.4s">
+          <rect x="58" y="68" width="22" height="14" rx="2"/>
+          <line x1="62" y1="73" x2="76" y2="73"/>
+          <line x1="62" y1="77" x2="72" y2="77"/>
+        </g>
+        <!-- 装饰：实心三角（左上） -->
+        <polygon class="float-y" style="animation-delay:.1s" points="14,28 24,30 16,38" fill="var(--ink)" stroke="none"/>
+        <!-- 装饰：实心三角/光标（中下） -->
+        <polygon class="float-y" style="animation-delay:.3s" points="46,72 56,72 51,82" fill="var(--ink)" stroke="none"/>
+        <!-- 装饰：八角星描边（左下） -->
+        <path class="float-y" style="animation-delay:.5s"
+              d="M 28 78 L 30 82 L 34 84 L 30 86 L 28 90 L 26 86 L 22 84 L 26 82 Z"
+              fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+        <!-- 装饰：加号（中下） -->
+        <path class="float-y" style="animation-delay:.6s"
+              d="M 42 86 v 6 M 39 89 h 6"
+              stroke="var(--ink)" stroke-width="1.8" fill="none"/>
+        <!-- 装饰：小星（右中） -->
+        <path class="float-y" style="animation-delay:.7s"
+              d="M 88 48 L 89.2 50.4 L 91.8 50.7 L 90 52.5 L 90.4 55.1 L 88 53.9 L 85.6 55.1 L 86 52.5 L 84.2 50.7 L 86.8 50.4 Z"
+              fill="var(--ink)" stroke="none"/>
+      </svg>
+    </div>
+    <p class="card__desc">智能体驱动的自动化执行单元。</p>
+    <span class="card__arrow" aria-hidden="true">→</span>
+  </a>
+
+  <!-- ② Workflow（工作流） — 仿 Jasper.ai Content Pipelines：流程图 + 红色三角 -->
+  <a class="card card--pink" href="#workflow">
+    <h3 class="card__title">Workflow</h3>
+    <div class="card__art">
+      <svg viewBox="0 0 120 120" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <!-- 整张流程图作为一个组整体浮动；所有节点共用同一条水平基线 y=61，箭头在框间干净连接，绝不扎进框内 -->
+        <g class="float-y">
+          <!-- 节点 1：输入 -->
+          <rect x="10" y="50" width="24" height="22" rx="3"/>
+          <line x1="15" y1="57" x2="29" y2="57"/>
+          <line x1="15" y1="63" x2="25" y2="63"/>
+          <!-- 箭头 1：输入 → 处理 -->
+          <line x1="36" y1="61" x2="46" y2="61"/>
+          <polyline points="41,57 47,61 41,65"/>
+          <!-- 节点 2：处理 -->
+          <rect x="46" y="50" width="24" height="22" rx="3"/>
+          <line x1="51" y1="57" x2="65" y2="57"/>
+          <line x1="51" y1="63" x2="61" y2="63"/>
+          <!-- 箭头 2：处理 → 运行 -->
+          <line x1="72" y1="61" x2="82" y2="61"/>
+          <polyline points="77,57 83,61 77,65"/>
+        </g>
+        <!-- 红色实心三角：运行/播放按钮，独立装饰，单独 float -->
+        <polygon class="float-y" style="animation-delay:.5s"
+                 points="92,52 92,70 108,61"
+                 fill="var(--ink)" stroke="none"/>
+      </svg>
+    </div>
+    <p class="card__desc">可视化编排，端到端的任务流转。</p>
+    <span class="card__arrow" aria-hidden="true">→</span>
+  </a>
+
+  <!-- ③ Robot（机器人） -->
+  <a class="card card--blue" href="#robot">
+    <h3 class="card__title">Robot</h3>
+    <div class="card__art">
+      <svg viewBox="0 0 120 120" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <g class="float-y">
+          <rect x="40" y="30" width="40" height="34" rx="8"/>
+          <rect x="50" y="40" width="20" height="12" rx="2" fill="var(--chip)" fill-opacity=".55"/>
+          <circle cx="56" cy="46" r="1.6" fill="var(--ink)" stroke="none"/>
+          <circle cx="64" cy="46" r="1.6" fill="var(--ink)" stroke="none"/>
+        </g>
+        <line x1="60" y1="30" x2="60" y2="22"/>
+        <circle cx="60" cy="20" r="2.5" fill="var(--ink)" stroke="none"/>
+        <g class="float-y" style="animation-delay:.4s">
+          <rect x="32" y="68" width="56" height="28" rx="6"/>
+          <line x1="40" y1="78" x2="80" y2="78"/>
+          <circle cx="48" cy="86" r="2" fill="var(--ink)" stroke="none"/>
+          <circle cx="60" cy="86" r="2" fill="var(--ink)" stroke="none"/>
+          <circle cx="72" cy="86" r="2" fill="var(--ink)" stroke="none"/>
+        </g>
+        <polygon class="float-y" style="animation-delay:.6s" points="20,80 28,82 24,90" fill="var(--ink)" stroke="none"/>
+        <polygon class="float-y" style="animation-delay:.2s" points="92,40 100,42 96,50" fill="var(--ink)" stroke="none"/>
+      </svg>
+    </div>
+    <p class="card__desc">RPA + AI 的执行机器人。</p>
+    <span class="card__arrow" aria-hidden="true">→</span>
+  </a>
+
+  <!-- ④ Web（网页） -->
+  <a class="card card--purple" href="#web">
+    <h3 class="card__title">Web</h3>
+    <div class="card__art">
+      <svg viewBox="0 0 120 120" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <g class="float-y">
+          <rect x="18" y="28" width="84" height="60" rx="6"/>
+          <line x1="18" y1="40" x2="102" y2="40"/>
+          <circle cx="26" cy="34" r="1.6" fill="var(--ink)" stroke="none"/>
+          <circle cx="32" cy="34" r="1.6" fill="var(--ink)" stroke="none"/>
+          <circle cx="38" cy="34" r="1.6" fill="var(--ink)" stroke="none"/>
+          <rect x="26" y="50" width="22" height="14" rx="2" fill="var(--chip)" fill-opacity=".6"/>
+          <line x1="52" y1="52" x2="94" y2="52"/>
+          <line x1="52" y1="58" x2="84" y2="58"/>
+          <line x1="52" y1="64" x2="90" y2="64"/>
+        </g>
+        <g class="float-y" style="animation-delay:.5s">
+          <polygon points="92,14 100,16 96,24" fill="var(--ink)" stroke="none"/>
+          <rect x="14" y="94" width="10" height="10" rx="2" fill="var(--ink)" stroke="none" transform="rotate(15 19 99)"/>
+        </g>
+        <g class="float-y" style="animation-delay:.2s">
+          <path d="M88 78 l4 10 l-3 -1 l-1 3 z" fill="var(--ink)" stroke="none"/>
+        </g>
+      </svg>
+    </div>
+    <p class="card__desc">网页与 SaaS 化交付界面。</p>
+    <span class="card__arrow" aria-hidden="true">→</span>
+  </a>
+
+</section>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target); }
+    });
+  },{threshold:0.2});
+  document.querySelectorAll('.card').forEach(c=>io.observe(c));
+</script>
+</body>
+</html>
