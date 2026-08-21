@@ -1,0 +1,47 @@
+-tag-content--variant="glass" class="tag w-variant-b55e5cb0-f350-7233-7b78-3d27dcc0cc68"><div class="tag-icon w-variant-b55e5cb0-f350-7233-7b78-3d27dcc0cc68"><div class="tag-icon"></div></div><div data-pseudo="" fs-list-field="" class="tag-text">HR Report</div></div></div></div></div><div class="nav-item-info"><div class="nav-item-title"><div>Read the 2026 State of People Strategy Report</div></div></div></a></div></div></div></nav></div><a data-wf-native-id-path="aabda689-1afa-85bf-66e8-a7e401ef2a59:24ac96fb-53b7-84e8-39b3-7370c0b6249e" data-wf-ao-click-engagement-tracking="true" data-wf-element-id="24ac96fb-53b7-84e8-39b3-7370c0b6249e" data-wf-component-context="%5B%7B%22componentId%22%3A%2260708384-fa67-bd25-49df-5263e6591566%22%2C%22instanceId%22%3A%22aabda689-1afa-85bf-66e8-a7e401ef2a59%22%7D%5D" href="/pricing" class="nav-link w-inline-block"><div>Pricing</div></a><link rel="prefetch" href="/pricing"/></nav><div class="nav-buttons"><a data-wf-native-id-path="aabda689-1afa-85bf-66e8-a7e401ef2a59:24ac96fb-53b7-84e8-39b3-7370c0b624a2" data-wf-ao-click-engagement-tracking="true" data-wf-element-id="24ac96fb-53b7-84e8-39b3-7370c0b624a2" data-wf-component-context="%5B%7B%22componentId%22%3A%2260708384-fa67-bd25-49df-5263e6591566%22%2C%22instanceId%22%3A%22aabda689-1afa-85bf-66e8-a7e401ef2a59%22%7D%5D" href="/login" class="nav-link is-login">Log in</a><link rel="prefetch" href="/login"/><a data-wf-native-id-path="aabda689-1afa-85bf-66e8-a7e401ef2a59:24ac96fb-53b7-84e8-39b3-7370c0b624a4" data-wf-ao-click-engagement-tracking="true" data-wf-element-id="24ac96fb-53b7-84e8-39b3-7370c0b624a4" data-wf-component-context="%5B%7B%22componentId%22%3A%2260708384-fa67-bd25-49df-5263e6591566%22%2C%22instanceId%22%3A%22aabda689-1afa-85bf-66e8-a7e401ef2a59%22%7D%5D" href="/demo" class="button is-nav w-button">Request a demo</a><link rel="prefetch" href="/demo"/><div class="nav-burger w-nav-button"></div></div></div></div><main><header data-wf--hero-home--variant="horizontal" class="hero is-home w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7"><div class="code w-embed"><style>
+  @media screen and (min-width: 992px) {
+    .headline {
+      margin-bottom: 0 !important;
+    }
+
+    [data-wf--hero-home--variant='horizontal'] .headline {
+      margin-bottom: 1.6rem !important;
+    }
+  }
+
+  .container.is-logobar {
+    width: auto;
+    margin-left: -1.6rem;
+    margin-right: -1.6rem;
+  }
+</style></div><div id="w-node-a55ced41-ba98-f824-aef1-9771f1992d72-f1992d70" class="w-layout-blockcontainer container w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7 w-container"><div class="w-layout-grid home-grid w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7"><div id="w-node-a55ced41-ba98-f824-aef1-9771f1992d73-f1992d70" class="w-layout-grid home-content-grid w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7 w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7"><h1 class="headline is-home">People + AI: Succeeding Together</h1><p class="body-l">Join 5,000+ forward-thinking teams using Lattice’s HR and AI tools to manage people and performance — all on one trusted platform.<br/></p><div class="buttons w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7"><a id="button-a-demo" data-wf-native-id-path="a55ced41-ba98-f824-aef1-9771f1992d6f:a55ced41-ba98-f824-aef1-9771f1992d7a" data-wf-ao-click-engagement-tracking="true" data-wf-element-id="a55ced41-ba98-f824-aef1-9771f1992d7a" data-wf-component-context="%5B%7B%22componentId%22%3A%22a55ced41-ba98-f824-aef1-9771f1992d70%22%2C%22instanceId%22%3A%22a55ced41-ba98-f824-aef1-9771f1992d6f%22%7D%5D" href="/demo" data-wf-event-ids="157082074" class="button is-rainbow w-button">Request a demo</a><link rel="prefetch" href="/demo"/><a class="button is-secondary w-button" data-wf-component-context="%5B%7B%22componentId%22%3A%22a55ced41-ba98-f824-aef1-9771f1992d70%22%2C%22instanceId%22%3A%22a55ced41-ba98-f824-aef1-9771f1992d6f%22%7D%5D" data-wf-element-id="a55ced41-ba98-f824-aef1-9771f1992d7c" data-wf-event-ids="157082075" href="/tours/lattice" display-mode="desktop" id="button-a-tour" data-wf-native-id-path="a55ced41-ba98-f824-aef1-9771f1992d6f:a55ced41-ba98-f824-aef1-9771f1992d7c" data-wf-ao-click-engagement-tracking="true">Take a tour</a><link rel="prefetch" href="/tours/lattice"/></div></div><div id="w-node-b9ef9b23-c294-0246-875d-d958c74332c8-f1992d70" class="w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7"><section class="section is-logobar"><div class="w-layout-blockcontainer container is-logobar w-container"><div class="code w-embed"><style>
+/* Marquee on tablet */
+@media screen and (max-width: 991px) {  
+.logobar-item {
+  animation: logobar 60s infinite linear;
+}
+
+/* Group A: First four items */
+.logobar-item:nth-child(-n+4) {
+  --start: 0;
+  --mid: -400%;
+  --jump: 400%;
+  --end: 0;
+}
+
+/* Group B: Last four items */
+.logobar-item:nth-child(n+5) {
+  --start: 0;
+  --mid: -400%;
+  --jump: -400%;
+  --end: -800%;
+}
+
+@keyframes logobar {
+0% { transform: translateX(var(--start)); }
+50% { transform: translateX(var(--mid)); }
+50.01% { transform: translateX(var(--jump)); }
+100% { transform: translateX(var(--end)); }
+}
+}
+</style></div><div class="w-dyn-list"><div role="list" class="logobar-list w-dyn-items"><div role="listitem" class="w-dyn-item"><div class="logobar"><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/66b4f5fdf6b677ab6000ed0b_logo-greenhouse-grey.svg" loading="eager" alt="Main" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/66b45739cbd8dfbde1ab4fcf_logo-Robinhood-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/66b455e5e1d0aa301eaab17b_logo-Loom-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/66bf45fa20a73fa04d2ec0f5_logo-duolingo-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/66b454aecc2d882046814fbc_logo-Discord-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/66bf38c843768e83696ff35e_logo-brooklinen-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/6798d00518d21d258420ffcd_logo-npr-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div><div class="logobar-item"><img src="https://cdn.prod.website-files.com/64d227d0bd6695f39ef77395/67dd37a9f88f95cc9eef6a20_logo-gusto-grey.svg" loading="lazy" alt="" class="logobar-logo"/></div></div></div></div></div></div></section></div><div id="w-node-a55ced41-ba98-f824-aef1-9771f1992d80-f1992d70" class="home-video-container w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7 w-variant-8fcaf9b0-7c2f-e4cf-a863-6c43d97c73a7"><code-island data-loader="{&quot;tag&quot;:&quot;FEDERATION&quot;,&quot;val&quot;:{&quot;clientModuleUrl&quot;:&quot;https://code-components.website-files.com/6a68db3ae3014603b942bfb9%2Fmodule%2Fwf-manifest.json&quot;,&quot;moduleId&quot;:&quot;_6a68db3ae3014603b942bfb9&quot;,&quot;submoduleId&quot;:&quot;MeshGradient&quot;,&quot;exportPath&quot;:&quot;default&quot;,&quot;serverModuleUrl&quot;:&quot;_&quot;}}" data-props="{&quot;color1&quot;:&quot;#fbe6ff&quot;,&quot;color2&quot;:&quot;#52e5ff&quot;,&quot;color3&quot;:&quot;#d1ff66&quot;,&quot;color4&quot;:&quot;&quot;,&quot;color5&quot;:&quot;&quot;,&quot;distortion&quot;:0.3,&quot;swirl&quot;:0.2,&quot;grainMixer&quot;:0,&quot;grainOverlay&quot;:0,&quot;scale&quot;:0.7,&quot;speed&quot;:1,&quot;enableLazyLoading&quot;:false,&quot;pauseWhenOutOfView&quot;:true,&quot;opacity&quot;:1,&quot;brightness&quot;:100,&quot;saturation&quot;:100,&quot;mask&quot;:&quot;&quot;}" data-slots="[]" data-hydrate="true" data-we

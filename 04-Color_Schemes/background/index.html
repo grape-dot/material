@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>NightSkyDiorama Viewer</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #05070f; overflow: hidden; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 8px; left: 8px; color: #9fb4d8; font: 12px/1.5 monospace;
+         background: rgba(5,7,15,.6); padding: 6px 10px; border-radius: 6px; pointer-events: none; z-index: 9; }
+</style>
+</head>
+<body>
+<div id="hud" style="display:none">view: <span id="viewname">front</span></div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/examples/jsm/": "./vendor/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="./main.js?v=43"></script>
+</body>
+</html>

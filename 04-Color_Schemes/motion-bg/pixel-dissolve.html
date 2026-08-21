@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Dissolve — 像素溶解动效复刻 (dalinggan aura-071c579)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: auto; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fff; }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; color: #09090B; text-align: center; padding: 40px;
+  }
+  .hero h1 { font-size: 42px; letter-spacing: -0.02em; }
+  .hero p  { color: #71717a; font-size: 16px; }
+
+  /* ===== Pixel dissolve band (复刻核心) ===== */
+  .pixel-band {
+    position: relative;
+    height: 500px;
+    width: 100%;
+    overflow: hidden;
+    background: #FFFFFF;
+    pointer-events: none;
+  }
+  .pixel-band span {
+    position: absolute;
+    display: block;
+    transition: background-color 120ms linear;
+  }
+
+  .footer {
+    min-height: 60vh;
+    background: #09090B;
+    color: #fafafa;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <h1>Pixel Dissolve</h1>
+  <p>向下滚动 —— 像素从底部开始随机溶解为黑色，过渡带闪烁彩色像素</p>
+</section>
+
+<!-- 像素溶解带：等效于原站 data-site-footer-pixel-scroll -->
+<div class="pixel-band" id="pixelBand" aria-hidden="true"></div>
+
+<footer class="footer">FOOTER · #09090B</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ===== 原站配置 (从 dalinggan chunk 1:1 提取) ===== */
+  var CONFIG = {
+    height: 500,
+    pixelSize: 24,
+    gap: 0,
+    endAt: 0.8,
+    jitter: 0.16,
+    feather: 0.07,
+    smoothing: 0.34,
+    seed: 13,
+    accentShare: 0.16,
+    fromColor: "#FFFFFF",
+    toColor: "#09090B",
+    accentColors: ["#00D1FF", "#FFE047", "#FF4D6D", "#7CFF6B"]
+  };
+
+  function clamp(v, min, max) { min = min === undefined ? 0 : min; max = max === undefined ? 1 : max; return Math.max(min, Math.min(max, v)); }
+
+  var band = document.getElementById("pixelBand");
+  var rafId = null, lastT = null;
+  var pos = 0, vel = 0, target = 0;       // 弹簧状态
+  var reduced = false;
+  var pixels = [];                         // {el, threshold, accent, accentIndex}
+
+  /* ===== mulberry32 PRNG，种子与原站算法一致 ===== */
+  function makeRand(width, height, rows, cols) {
+    var s = (Math.floor(CONFIG.seed) + 13 * Math.floor(width) + 29 * Math.floor(height) + 43 * rows + 59 * cols) >>> 0;
+    return function () {
+      var t = (s += 0x6D2B79F5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 0x100000000;
+    };
+  }
+
+  /* ===== 生成像素网格 (bottom-top 方向：底部 threshold 低，先变黑) ===== */
+  function buildGrid() {
+    var rect = band.getBoundingClientRect();
+    var w = Math.max(1, rect.width), h = Math.max(1, rect.height);
+    var size = CONFIG.pixelSize, gap = CONFIG.gap;
+    var cols = Math.max(1, Math.ceil((w + gap) / (size + gap)));
+    var rows = Math.max(1, Math.ceil((h + gap) / (size + gap)));
+    var rand = makeRand(w, h, rows, cols);
+
+    band.innerHTML = "";
+    pixels = [];
+    var frag = document.createDocumentFragment();
+
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var base = 1 - (rows <= 1 ? 0.5 : r / (rows - 1));
+        var n1 = (rand() - 0.5) * 1.6;
+        var n2 = (rand() - 0.5) * CONFIG.jitter * 0.65;
+        var el = document.createElement("span");
+        el.style.width = size + "px";
+        el.style.height = size + "px";
+        el.style.left = c * (size + gap) + "px";
+        el.style.top = r * (size + gap) + "px";
+        el.style.backgroundColor = CONFIG.fromColor;
+        frag.appendChild(el);
+        pixels.push({
+          el: el,
+          threshold: clamp(base + 0.5 * n1 + n2),
+          accent: rand() < CONFIG.accentShare,
+          accentIndex: Math.floor(4 * rand())
+        });
+      }
+    }
+    band.appendChild(frag);
+    paint(pos / CONFIG.endAt);
+  }
+
+  /* ===== 着色：feather 过渡带内，accent 像素显示彩色 ===== */
+  function paint(progress) {
+    var p = clamp(progress);
+    var f = CONFIG.feather;
+    for (var i = 0; i < pixels.length; i++) {
+      var px = pixels[i];
+      var o = p - px.threshold;
+      var color;
+      if (o <= -f)      color = CONFIG.fromColor;
+      else if (o >= f)  color = CONFIG.toColor;
+      else if (px.accent) color = CONFIG.accentColors[px.accentIndex % CONFIG.accentColors.length];
+      else              color = o >= 0 ? CONFIG.toColor : CONFIG.fromColor;
+      px.el.style.backgroundColor = color;
+    }
+  }
+
+  /* ===== 弹簧平滑 (stiffness/damping 由原站 smoothing=0.34 推导) ===== */
+  var stiffness = 320 - 240 * CONFIG.smoothing;   // 238.4
+  var damping   = 22 + 22 * CONFIG.smoothing;     // 29.48
+  var mass      = 0.25 + 0.6 * CONFIG.smoothing;  // 0.454
+
+  function tick(now) {
+    var prev = lastT === null ? now : lastT;
+    var dt = Math.min((now - prev) / 1000, 0.064);
+    lastT = now;
+    var steps = Math.max(1, Math.ceil(dt / (1 / 120)));
+    var h = dt / steps;
+    for (var i = 0; i < steps; i++) {
+      var acc = (stiffness * (target - pos) - damping * vel) / mass;
+      vel += acc * h;
+      pos += vel * h;
+    }
+    paint(pos / CONFIG.endAt);
+    if (Math.abs(target - pos) < 1e-4 && Math.abs(vel) < 1e-4) {
+      pos = target; vel = 0;
+      paint(target / CONFIG.endAt);
+      rafId = null; lastT = null;
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function kick() {
+    if (rafId !== null) return;
+    lastT = performance.now();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  /* ===== 滚动驱动：progress = (vh - top) / (vh + height) ===== */
+  function onScroll() {
+    var rect = band.getBoundingClientRect();
+    var vh = Math.max(1, window.innerHeight);
+    var p = clamp((vh - rect.top) / (vh + rect.height));
+    target = p;
+    if (reduced) {                      // prefers-reduced-motion：直接跳变
+      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; lastT = null; }
+      pos = p; vel = 0;
+      paint(p / CONFIG.endAt);
+      return;
+    }
+    kick();
+  }
+
+  var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  reduced = mq.matches;
+  mq.addEventListener("change", function () { reduced = mq.matches; onScroll(); });
+
+  buildGrid();
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", function () { buildGrid(); onScroll(); });
+})();
+</script>
+</body>
+</html>

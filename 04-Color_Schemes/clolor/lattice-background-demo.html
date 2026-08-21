@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lattice 背景色变换复刻</title>
+<style>
+  /* ============================================================
+     Lattice 背景色系统复刻（仅背景，不含原站内容）
+     色值均提取自 lattice.com 真实 CSS
+     ============================================================ */
+  :root {
+    /* 沙色系（页面主背景） */
+    --color--white: #ffffff;
+    --color--sand-50: #faf9f7;
+    --color--sand-100: #f7f6f2;
+    --color--sand-200: #ebe7e1;
+    /* 强调色 */
+    --color--green-50: #eafce9;
+    --color--green-100: #cdface;
+    --color--purple-600: #624ee5;
+    --color--purple-400: #7070ff;
+    --color--purple-200: #b8b8ff;
+    --color--pink-200: #fab8ff;
+    --color--lime-100: #eff5ce;
+    --color--teal-200: #8bf0ba;
+    --color--turquoise-200: #51e0cd;
+    --color--grey-1000: #1f2b2b;
+    --radius--3xl: 3.2rem;
+
+    /* Lattice 7 色粉彩渐变 token（100 浓度，原站原值）
+       结构：225deg 上层 40% 透明彩色 → 底层实色 pastel */
+    --gradient-lime-100:   linear-gradient(225deg, rgb(255 221 153 / 40%), rgb(196 245 219)), rgb(196 245 219);
+    --gradient-yellow-100: linear-gradient(225deg, rgb(250 184 255 / 40%), rgb(255 243 194)), rgb(255 243 194);
+    --gradient-pink-100:   linear-gradient(225deg, rgb(255 189 193 / 40%), rgb(253 229 255)), rgb(253 229 255);
+    --gradient-purple-100: linear-gradient(225deg, rgb(217 173 255 / 40%), rgb(225 225 250)), rgb(225 225 250);
+    --gradient-blue-100:   linear-gradient(225deg, rgb(184 184 255 / 40%), rgb(191 241 245)), rgb(191 241 245);
+    --gradient-teal-100:   linear-gradient(225deg, rgb(103 226 235 / 40%), rgb(177 240 231)), rgb(177 240 231);
+    --gradient-green-100:  linear-gradient(225deg, rgb(81 224 205 / 40%),  rgb(205 250 206)), rgb(205 250 206);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--color--grey-1000);
+    background-color: var(--color--white);
+  }
+
+  /* 【技巧 1】页面级纵向渐变：白 → 沙色 → 白
+     原站选择器：main:not([class]) */
+  main {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color--white),
+      var(--color--sand-50) 33%,
+      var(--color--sand-50) 66%,
+      var(--color--white)
+    );
+    overflow: clip;
+  }
+
+  section {
+    padding: 6rem 1.6rem;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 3rem; letter-spacing: -0.024em; line-height: 1; margin-bottom: 1rem; }
+  h2 { font-size: 2rem; letter-spacing: -0.016em; margin-bottom: 0.8rem; }
+  p  { font-size: 1.05rem; line-height: 1.6; opacity: 0.75; max-width: 40rem; }
+  .tag { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; margin-bottom: 1rem; display: block; }
+
+  /* 【技巧 2】滚动时背景色切换：圆角"盒子"区块浮在页面背景上
+     原站 .box 系列：sand-100 / purple-600 等，大圆角 + 内缩 */
+  .box {
+    border-radius: var(--radius--3xl);
+    background-color: var(--color--sand-100);
+    padding: 5rem 4rem;
+    margin: 2rem auto;
+    max-width: 68rem;
+  }
+  .box.is-purple {
+    background-color: var(--color--purple-600);
+    color: #fff;
+  }
+  .box.is-purple p { opacity: 0.85; }
+
+  /* 【技巧 3】彩虹流动渐变（原站 .button.is-rainbow::before 同款）
+     核心：oklch 色彩空间插值 + background-size 300% + 位移循环 */
+  .rainbow-band {
+    --stop-1: #d0ff64;  /* 荧光绿 */
+    --stop-2: #52e5ff;  /* 青 */
+    --stop-3: #fbe3ff;  /* 粉 */
+    --speed: 8s;
+
+    height: 10rem;
+    border-radius: var(--radius--3xl);
+    background-size: 300% 100%;
+    background-image: linear-gradient(
+      in oklch to right,
+      var(--stop-1), var(--stop-2), var(--stop-3), var(--stop-2), var(--stop-1)
+    );
+    animation: rainbow var(--speed) linear infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  @keyframes rainbow {
+    to { background-position: 150%; }
+  }
+
+  /* 【技巧 4】7 色粉彩渐变 token 展示（原站 gradient-*-100 体系） */
+  .gradient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .gradient-cell {
+    aspect-ratio: 4 / 3;
+    border-radius: 1.2rem;
+    display: flex;
+    align-items: flex-end;
+    padding: 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .g-lime   { background: var(--gradient-lime-100); }
+  .g-yellow { background: var(--gradient-yellow-100); }
+  .g-pink   { background: var(--gradient-pink-100); }
+  .g-purple { background: var(--gradient-purple-100); }
+  .g-blue   { background: var(--gradient-blue-100); }
+  .g-teal   { background: var(--gradient-teal-100); }
+  .g-green  { background: var(--gradient-green-100); }
+
+  .swatch-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.6rem; }
+  .swatch { width: 5.4rem; text-align: center; font-size: 0.68rem; }
+  .swatch i { display: block; height: 3rem; border-radius: 0.6rem; margin-bottom: 0.35rem; }
+
+  .note { font-size: 0.85rem; opacity: 0.55; margin-top: 1.2rem; }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- 区块 1：白/沙色渐变底（页面主背景） -->
+  <section>
+    <span class="tag">01 · 页面级背景</span>
+    <h1>白 → 沙色纵向渐变</h1>
+    <p>整页 main 容器铺一层 white → sand-50(#faf9f7) → white 的纵向渐变，作为所有内容的基底。滚动时你看到的"底色变化"其实是后续圆角盒子浮在这层渐变之上。</p>
+    <div class="swatch-row">
+      <div class="swatch"><i style="background:#ffffff;border:1px solid #eee"></i>white<br>#ffffff</div>
+      <div class="swatch"><i style="background:#faf9f7"></i>sand-50<br>#faf9f7</div>
+      <div class="swatch"><i style="background:#f7f6f2"></i>sand-100<br>#f7f6f2</div>
+    </div>
+  </section>
+
+  <!-- 区块 2：沙色盒子 -->
+  <div class="box">
+    <span class="tag">02 · 滚动变色 · 盒子区块</span>
+    <h2>sand-100 圆角盒子</h2>
+    <p>Lattice 的内容区块不是通栏色带，而是 3.2rem 大圆角的"卡片盒子"（.box），背景 sand-100(#f7f6f2)，悬浮在页面渐变底上。滚动进入时产生背景色切换的感觉。</p>
+  </div>
+
+  <!-- 区块 3：深紫盒子（全站最强对比的一次背景跳变） -->
+  <div class="box is-purple">
+    <span class="tag" style="opacity:.7">03 · 滚动变色 · 深色锚点</span>
+    <h2>purple-600 深紫盒子</h2>
+    <p>整页唯一的深色区块 purple-600(#624ee5)，在连续的浅色粉彩中形成一个强对比锚点，是"背景色变换"节奏感的关键——浅 → 浅 → 深 → 浅。</p>
+  </div>
+
+  <!-- 区块 4：彩虹流动渐变 -->
+  <section>
+    <span class="tag">04 · 动态渐变 · 无限循环</span>
+    <h2>彩虹流动渐变（oklch 插值）</h2>
+    <p>原站用在主 CTA 按钮上：oklch 色彩空间做 5 段往返渐变（荧光绿 #d0ff64 → 青 #52e5ff → 粉 #fbe3ff → 青 → 绿），背景放大到 300%，8 秒线性移动 background-position 到 150%，实现无缝循环流动。</p>
+    <br>
+    <div class="rainbow-band">8s · linear · infinite · background-position 0% → 150%</div>
+    <p class="note">关键点：linear-gradient(in oklch …) 让中间过渡色不发灰；首尾颜色相同（A→B→C→B→A）配合 300% 宽度实现无缝循环。</p>
+  </section>
+
+  <!-- 区块 5：粉彩渐变 token 体系 -->
+  <div class="box">
+    <span class="tag">05 · 渐变 token 体系</span>
+    <h2>7 色粉彩渐变（gradient-*-100）</h2>
+    <p>Lattice 的全站渐变不是随意拉的，而是一套设计 token：lime / yellow / pink / purple / blue / teal / green × 50 / 100 两档浓度。每个都是 225deg 双层结构——上层 40% 透明彩色斜向罩染，下层实色 pastel 托底。</p>
+    <div class="gradient-grid">
+      <div class="gradient-cell g-lime">lime-100</div>
+      <div class="gradient-cell g-yellow">yellow-100</div>
+      <div class="gradient-cell g-pink">pink-100</div>
+      <div class="gradient-cell g-purple">purple-100</div>
+      <div class="gradient-cell g-blue">blue-100</div>
+      <div class="gradient-cell g-teal">teal-100</div>
+      <div class="gradient-cell g-green">green-100</div>
+    </div>
+  </div>
+
+  <section style="text-align:center; opacity:.5; font-size:.85rem;">
+    背景色值与渐变结构均提取自 lattice.com 真实生产 CSS · 仅用于学习研究
+  </section>
+
+</main>
+</body>
+</html>
