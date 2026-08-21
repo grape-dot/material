@@ -8,11 +8,12 @@
 
 ## 〇、最近新增（相对上一版整理）
 
-- `02-Motion_Effects_and_Animation` 下新增三个子项目：
-  - `page-navigation-style/`：复刻 airbagstudio 首页「滚动驱动的原位切换」盒子，沉淀了 **cuboid-v1 / v2 / v3** 三个可运行版本（并自带 README）。
-  - `ripple-style/`：基于 airbagstudio 研究的「涟漪 Hero」单页 Demo，含 PolySans 字体与研究源码快照。
-  - `top-navigation-bar/`：**空占位目录**，等待填充顶部导航栏相关素材。
-- 根目录旧版提到的 `顶部` 空壳目录已彻底移除（原先因进程占用句柄无法删除，现已解决）。
+- `02-Motion_Effects_and_Animation/top-navigation-bar/` **已填充**（之前是空占位）：新增 `index.html`（Airbag Studio 风格导航栏单文件实现）+ `README.md`（完整复刻说明与可直接喂 AI 的提示词）。与 cuboid / ripple 同属 airbagstudio 复刻系列。
+- `04-Color_Schemes` **大幅扩展**，新增三个子项目：
+  - `background/`：基于 Three.js 的「夜空立体背景」Viewer（NightSkyDiorama），含 OrbitControls + UnrealBloom 辉光后处理，vendor 内联 Three.js 依赖离线可跑。
+  - `clolor/`：对 lattice.com 的逆向研究 + 纯 CSS「背景色变换」复刻 Demo（`lattice-background-demo.html` + 提示词文档 + `.research/` 提取快照）。
+  - `motion-bg/`：canvas/CSS「像素溶解」(Pixel Dissolve) 首屏动效复刻。
+  - `clolor-base/` 内新增 `配色网站推荐.md`（UI Gradients / LOL Colors / Color Space 三站推荐）。
 
 ---
 
@@ -27,7 +28,7 @@ D:\material\
 │   ├── customer-showcase-demo\    （原「案列介绍卡片」，Outseta 客户案例区）
 │   ├── interactive-3D-mouse-demo\ （原「3d鼠标交互展示」，Half of Eight 鼠标跟随 3D 卡片）
 │   └── svg-introduction-demo\     （原「产品介绍卡片展示」，Jasper 产品版块）
-├── 02-Motion_Effects_and_Animation\  ← 独立动画 / 滚动展示 / 顶部 Hero
+├── 02-Motion_Effects_and_Animation\  ← 独立动画 / 滚动展示 / 顶部 Hero / 导航栏
 │   ├── film-style\                （原「胶卷」）
 │   ├── intro-animation-style\     （原「顶部」，linkinwise 字样 Hero 研究 + Streamtime 整站参考）
 │   │   ├── linkinwise-first\      （初版）
@@ -39,19 +40,22 @@ D:\material\
 │   │   ├── cuboid-v2\             （Next.js + TS + GSAP：翻页式，完整工程）
 │   │   └── cuboid-v3\             （原生 HTML + GSAP：翻页式纯重写）
 │   ├── ripple-style\              （airbagstudio 涟漪 Hero 研究 + 单页 Demo）
-│   └── top-navigation-bar\        （空占位，待填充）
+│   └── top-navigation-bar\        （airbagstudio 风格顶部导航栏，index.html + README.md）
 ├── 03-AI_Prompts\                 ← 文生图风格提示词
 │   ├── Kimi-Archive-style\        （原「poster-prompt」，Kimi Archive 档案美学）
 │   └── antiquity-style\           （原「prompt」，复古中文海报 / 古典水墨）
-└── 04-Color_Schemes\              ← 品牌配色资产
-    └── clolor-base\               （原「clolor / 配色库」）
+└── 04-Color_Schemes\              ← 品牌配色 / 背景视觉资产
+    ├── background\                （Three.js 夜空立体背景 Viewer）
+    ├── clolor\                    （原「lattice 背景」，lattice.com 背景色系统研究 + 复刻）
+    ├── clolor-base\               （原「clolor / 配色库」静态配色表 + 网站推荐）
+    └── motion-bg\                 （像素溶解动效复刻）
 ```
 
 ---
 
 ## 二、"相似但实现不同"的对比（重点归纳）
 
-你提到"类似的可复用但实现效果不一致我也分开整理了"，核心有 6 组：
+你提到"类似的可复用但实现效果不一致我也分开整理了"，核心有 8 组：
 
 ### 1. 卡片展示四兄弟（同一类需求，复刻对象/交互各不相同）—— 现同属 `01-Card_Component_Display`
 | 文件夹 | 复刻对象 | 视觉/交互差异 | 文档 |
@@ -92,6 +96,18 @@ D:\material\
 
 ### 6. 涟漪 Hero（独立单页 Demo）—— `02-Motion_Effects_and_Animation/ripple-style`
 - 基于 airbagstudio 研究产出的「涟漪/水波 Hero」单页 Demo（`index.html` 自包含，含 PolySans 字体与研究源码快照），与上面 cuboid 系列同源但呈现不同的首屏表达。
+
+### 7. 顶部导航栏（airbagstudio 复刻的第三块拼图）—— `02-Motion_Effects_and_Animation/top-navigation-bar`
+- 与 cuboid / ripple **同源**（都是复刻 airbagstudio.it），补全了首屏的导航栏组件：`index.html` 单文件实现固定顶栏 + 4 链接（下划线 hover 动画）+ 黑色"联系我们"胶囊按钮（点击 3D 翻转弹窗）+ 地球语言切换（中英全量替换）；滚动 >70px 收起为白底三紫点圆钮、悬停展开；移动端汉堡全屏紫菜单。配套 `README.md` 即完整提示词。
+
+### 8. 配色 / 背景视觉资产（同一主题，三种技术路径）—— `04-Color_Schemes`
+| 文件夹 | 技术路径 | 效果 |
+| --- | --- | --- |
+| `background/` | **Three.js（WebGL 3D）** | 夜空立体背景 Viewer：OrbitControls + ACES 色调映射 + UnrealBloom 辉光后处理，可脚本化视角/截图 |
+| `clolor/` | **纯 CSS（逆向 lattice.com）** | 背景色变换由 4 个纯 CSS 技巧组合：白→沙色基底渐变、大圆角盒子滚动变色、oklch 彩虹流动、粉彩渐变 token |
+| `motion-bg/` | **canvas / CSS 像素动画** | 「像素溶解」(Pixel Dissolve) 首屏动效复刻（dalinggan aura） |
+
+三者分别走 3D / 纯 CSS / 像素动画，对应"品牌背景"的不同实现取向，可互为参照。
 
 ---
 
@@ -165,10 +181,11 @@ D:\material\
 | `assets/fonts/polysans-median.woff2` / `polysans-neutral.woff2` | 复刻用的 PolySans 字体（Median / Neutral 两款字重）。 |
 | `docs/research/airbagstudio/` | 原站研究快照：`airbag-source.html`（原站源码）、`entry.css`、`js/`（B0aqDn1D.js 等 12 个切片）、`payload.json`。用于逆向分析涟漪 Hero 的实现。 |
 
-### `02-Motion_Effects_and_Animation/top-navigation-bar/` （空占位）
+### `02-Motion_Effects_and_Animation/top-navigation-bar/` （airbagstudio 风格顶部导航栏 · 已填充）
 | 文件 | 说明 |
 | --- | --- |
-| _（当前为空）_ | 顶部导航栏相关素材的占位目录，等待填充（如导航栏组件、菜单交互 Demo 等）。 |
+| `index.html` | Airbag Studio 风格顶部导航栏，**单文件**（HTML+CSS+JS，无构建依赖）：固定顶栏 + Logo + 4 链接（下划线 hover 动画）+ 黑色"联系我们"胶囊（点击 3D 翻转弹窗）+ 地球语言切换（中英全量替换）；滚动 >70px 收起为白底三紫点圆钮、悬停展开；移动端汉堡全屏紫菜单。 |
+| `README.md` | 复刻说明 + 可直接喂 AI 的提示词：结构逻辑、设计变量（紫 `#b91b4c` / 橙 `#ff6620` 等）、8 项交互详解、复刻 Checklist、本地预览命令（`python -m http.server 8734`）。 |
 
 ---
 
@@ -189,12 +206,35 @@ D:\material\
 
 ---
 
+### `04-Color_Schemes/background/` （Three.js 夜空立体背景 Viewer）
+| 文件 | 说明 |
+| --- | --- |
+| `index.html` | NightSkyDiorama Viewer 入口页：用 `<script type="importmap">` 指向本地 `vendor/three.module.js`，支持 `?view=front\|three-quarter\|side\|top\|match` 脚本化视角。 |
+| `main.js` | 查看器逻辑：OrbitControls、ACES 色调映射、Bloom 等后处理、脚本视角与截图钩子（`window.__shoot`，供 CDP 抓取）。 |
+| `model.js` | 夜空立体模型与 LookDev 灯光（`createNightSkyDioramaModel` / `createNightSkyDioramaLookDevLights`）。 |
+| `render-final.png` / `render-interaction-tq.png` | 渲染成品截图 / 交互态截图。 |
+| `vendor/` | 内联 Three.js 依赖：`three.module.js` + `examples/jsm/`（OrbitControls、RoomEnvironment、postprocessing: EffectComposer / UnrealBloomPass / BokehPass / …、shaders）。离线可跑，但体积较大。 |
+
+### `04-Color_Schemes/clolor/` （lattice.com 背景色系统研究 + 复刻）
+| 文件 | 说明 |
+| --- | --- |
+| `lattice-background-prompt.md` | 对 lattice.com 生产环境 CSS/JS 的逆向拆解 + 中英文提示词。结论：背景色变换由纯 CSS 4 技巧组合（白→沙色基底渐变、大圆角盒子滚动变色、oklch 彩虹流动、粉彩渐变 token），附速查表。 |
+| `lattice-background-demo.html` | 单文件复刻 Demo（"Lattice 背景色变换复刻"），浏览器直接打开即可看全部 4 种效果。 |
+| `.research/` | 提取快照：原站片段 `lattice.html` / `lattice.css` / `lattice.js`、`chunks/`（JS 切片 0.js~966.js）、`scan.py` / `scan_sections.py`（抓取脚本）、`hero_snippet.txt`。研究用，非运行必需。 |
+| `README.md` | （若存在）子项目说明。 |
+
+### `04-Color_Schemes/motion-bg/` （像素溶解动效复刻）
+| 文件 | 说明 |
+| --- | --- |
+| `pixel-dissolve.html` | 「Pixel Dissolve — 像素溶解动效复刻」(dalinggan aura-071c579) 单文件首屏 Demo，可直接打开。 |
+
 ### `04-Color_Schemes/clolor-base/` （原「clolor / 配色库」）
 | 文件 | 说明 |
 | --- | --- |
 | `background-clolor.md` | 品牌背景配色表：含 CSS 变量名（如 `--base-color-brand-offwhite`）+ 色值，共 10 个色（米白、暖灰、品牌黄、粉、荧光绿、蓝、深黑）。⚠️ 其中 `#fleeeh` 疑似笔误（字母 l 混入），无法正确渲染，应为 `#f1eee0` 之类。 |
 | `clolor-see.txs` | 同一套配色的**纯色值列表**（txt 格式，便于批量复制）。 |
 | `image/advice.png` | 配色可视化色板图，直观查看各色。 |
+| `配色网站推荐.md` | 三个好用配色网站推荐：**UI Gradients**（现成双色渐变）、**LOL Colors**（人工精选 4 色卡）、**Color Space**（按主色自动生成同系/撞色调色板）；含网址与适用场景对照表。 |
 | _用途_ | 跨项目共享的**背景配色资产**，可被上述各 UI 项目引用。 |
 | _备注_ | 文件名仍含旧拼写 `clolor`（非 `color`），如需统一可重命名为 `color-base` / `background-color.md` / `color-see.txt`。 |
 
@@ -204,11 +244,13 @@ D:\material\
 
 本次整理的实际状态：
 - **分组**：按功能拆成 `01-Card_Component_Display` / `02-Motion_Effects_and_Animation` / `03-AI_Prompts` / `04-Color_Schemes` 四类，相似项目归入同一父目录。
-- **英文 slug 化**：用户已将全部文件夹改为英文 slug（含修正错别字 `案列→案例`、`clolor→clolor-base` 归类）。
+- **英文 slug 化**：用户已将全部文件夹改为英文 slug（含修正错别字 `案列→案例`）。
+- **airbagstudio 复刻系列**已成型：`page-navigation-style`（cuboid v1/v2/v3）、`ripple-style`、`top-navigation-bar` 三块，均复刻 airbagstudio.it 不同首屏组件。
 - **仍可优化（非必须）**：
-  - 个别文件名仍残留旧拼写 `clolor`（见 `04-Color_Schemes/clolor-base/` 内文件）；
+  - 个别文件名仍残留旧拼写 `clolor`（见 `04-Color_Schemes/clolor-base/`、`04-Color_Schemes/clolor/` 的目录名）；`clolor/` 实为 lattice 背景研究，建议重命名为如 `lattice-background/` 更直观；
   - `card-swap-demo` 已由工程版精简为单文件 `card-swap.html`；
-  - `page-navigation-style/cuboid-v2/` 内含 `node_modules/`、`.next/` 等构建产物，体积较大，必要时可加 `.gitignore` 排除；
-  - `top-navigation-bar/` 目前为空占位目录，待填充或删除。
+  - `02-.../cuboid-v2/` 内含 `node_modules/`、`.next/` 等构建产物（已在本仓库 `.gitignore` 中排除）；
+  - `04-Color_Schemes/background/vendor/` 为内联 Three.js 依赖（约数 MB）、`04-Color_Schemes/clolor/.research/` 为研究快照，二者体积较大且可重建/非运行必需，建议加 `.gitignore` 排除（规则已预留注释位）；
+  - `01-Card_Component_Display/3d-display-booth/` 目前仍为空占位目录，待填充或删除。
 
 > 根目录旧版提到的 `顶部` 空壳目录（曾因进程占用句柄无法删除）现已彻底移除；其真实内容早已完整移入 `02-Motion_Effects_and_Animation/intro-animation-style`。
